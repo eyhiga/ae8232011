@@ -1,5 +1,3 @@
-
-
 /*
 ** client.c -- a stream socket client demo
 */
@@ -49,13 +47,6 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    if ((numbytes=recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
-        perror("recv");
-        exit(1);
-    }
-
-    buf[numbytes] = '\0';
-
     /* First read to store data in cache. */
     while(fgets(buf, MAXDATASIZE, stdin) != NULL)
 	{
@@ -69,13 +60,7 @@ int main(int argc, char *argv[])
 		printf("%s", buf);
 	}
 
-
-    printf("Received: %s",buf);
-
     close(sockfd);
 
     return 0;
 }
-
-
-
