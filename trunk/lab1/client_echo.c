@@ -65,6 +65,8 @@ int main(int argc, char *argv[])
 	while(fgets(buf, MAXDATASIZE, stdin) != NULL)
 	{
 		send(sockfd, buf, MAXDATASIZE, 0);
+		numbytes=recv(sockfd, buf, MAXDATASIZE, 0);
+		printf("%s", buf);
 	}
 
 
