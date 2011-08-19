@@ -62,6 +62,10 @@ int main(int argc, char *argv[])
 	}
 	rewind(stdin);
 
+	while(fgets(buf, MAXDATASIZE, stdin) != NULL)
+	{
+		send(sockfd, buf, MAXDATASIZE, 0);
+	}
 
 
     printf("Received: %s",buf);
