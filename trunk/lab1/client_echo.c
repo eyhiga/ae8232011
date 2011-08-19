@@ -21,7 +21,6 @@ int main(int argc, char *argv[])
 {
     int sockfd, numbytes;  
     char buf[MAXDATASIZE];
-    char currentChar;
     struct hostent *he;
     struct sockaddr_in their_addr; /* connector's address information */
 
@@ -58,12 +57,12 @@ int main(int argc, char *argv[])
     buf[numbytes] = '\0';
 
     /* First read to store data in cache. */
-    currentChar = getchar();
-    while(currentChar != EOF)
-    {
-    	currentChar = getchar();
-    }
+    while(fgets(buf, MAXDATASIZE, stdin) != NULL)
+	{
+	}
 	rewind(stdin);
+
+
 
     printf("Received: %s",buf);
 
