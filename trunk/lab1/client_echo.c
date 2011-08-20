@@ -29,44 +29,37 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    printf("ok1\n");
-
     if ((he=gethostbyname(argv[1])) == NULL) {  /* get the host info */
         perror("gethostbyname");
         exit(1);
     }
 
-    printf("ok2\n");
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         perror("socket");
         exit(1);
     }
 
-    printf("ok3\n");
     their_addr.sin_family = AF_INET;         /* host byte order */
     their_addr.sin_port = htons(PORT);     /* short, network byte order */
-    their_addr.sin_addr = *((struct in_addr *)he->h_name);
+    their_addr.sin_addr = *((struct in_addr *)he->h_addr);
     bzero(&(their_addr.sin_zero), 8);        /* zero the rest of the struct */
 
-    printf("ok4\n");
     if (connect(sockfd, (struct sockaddr *)&their_addr, sizeof(struct sockaddr)) == -1) {
         perror("connect");
         exit(1);
     }
 
-    printf("ok5\n");
     /* First read to store data in cache. */
-    while(fgets(buf, MAXDATASIZE, stdin) != NULL)
-	{
-	}
-	rewind(stdin);
+    while(fgets(buf, MAXDATASIZE, stdin) != NULL){
+    }
+    rewind(stdin);
 
-	while(fgets(buf, MAXDATASIZE, stdin) != NULL)
-	{
-		send(sockfd, buf, MAXDATASIZE, 0);
-		numbytes=recv(sockfd, buf, MAXDATASIZE, 0);
-		printf("%s", buf);
-	}
+    while(fgets(buf, MAXDATASIZE, stdin) != NULL)
+    {
+        write(sockfd, buf, MAXDATASIZE);
+        read(sockfd, buf, MAXDATASIZE);
+        printf("%s", buf);
+    }
 
     close(sockfd);
 
