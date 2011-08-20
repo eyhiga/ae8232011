@@ -4,23 +4,29 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <strings.h>
+#include <netdb.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include <sys/wait.h>
+#include <arpa/inet.h>
 
 #define MYPORT 3490    /* the port users will be connecting to */
 
 #define BACKLOG 10     /* how many pending connections queue will hold */
 
-main()
+#define MAXLINE 100   /* Tamanho da linha recebida */
+
+int main()
 {
-    int sockfd, new_fd;  /* listen on sock_fd, new connection on new_fd */
+    int sockfd, new_fd, numbytes;  /* listen on sock_fd, new connection on new_fd */
+    char line[MAXLINE];
     struct sockaddr_in my_addr;    /* my address information */
     struct sockaddr_in their_addr; /* connector's address information */
-    int sin_size;
+    unsigned int sin_size;
 
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         perror("socket");
@@ -50,14 +56,19 @@ main()
         }
         printf("server: got connection from %s\n",inet_ntoa(their_addr.sin_addr));
 
-       if (send(new_fd, "Hello, world!\n", 14, 0) == -1){
-                perror("send");
-                exit(1);
-       }
+        while ((numbytes = read(new_fd, line, MAXLINE)) > 0) {
 
-        close(new_fd);  
+            printf("Linha Recebida: %s\n", line);
+            write(new_fd, line, MAXLINE);
+
+        }
+
+        close(new_fd);
+        printf("server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
 
     }
+    return 0;
+
 }
 
 

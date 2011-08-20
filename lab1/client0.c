@@ -1,13 +1,13 @@
-
-
 /*
 ** client.c -- a stream socket client demo
 */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <strings.h>
 #include <netdb.h>
 #include <sys/types.h>
 #include <netinet/in.h>
