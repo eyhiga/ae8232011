@@ -59,7 +59,7 @@ int main()
         while ((numbytes = read(new_fd, line, MAXLINE)) > 0) {
 
             printf("Linha Recebida: %s\n", line);
-            write(new_fd, line, MAXLINE);
+            write(new_fd, line, numbytes);
 
         }
 
