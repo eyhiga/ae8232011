@@ -69,7 +69,7 @@ int main()
 		}
 
         close(new_fd);
-        printf("server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
+        //printf("server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
 		while(waitpid(-1, NULL, WNOHANG) > 0);
 
     }
