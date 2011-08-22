@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <arpa/inet.h>
 
 #define MYPORT 3490    /* the port users will be connecting to */
@@ -56,15 +57,19 @@ int main()
         }
         printf("server: got connection from %s\n",inet_ntoa(their_addr.sin_addr));
 
-        while ((numbytes = read(new_fd, line, MAXLINE)) > 0) {
+		if(!fork)
+		{
+        	while ((numbytes = read(new_fd, line, MAXLINE)) > 0) {
 
-            printf("Linha Recebida: %s\n", line);
-            write(new_fd, line, numbytes);
+            	printf("Linha Recebida: %s\n", line);
+            	write(new_fd, line, numbytes);
 
-        }
+        	}
+		}
 
         close(new_fd);
         printf("server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
+		while(waitpid(-1, NULL, WNOHANG) > 0);
 
     }
     return 0;
