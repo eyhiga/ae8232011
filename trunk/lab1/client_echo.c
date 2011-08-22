@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
     while(fgets(buf, MAXDATASIZE, stdin) != NULL)
     {
-        charsSentAux = write(sockfd, buf, MAXDATASIZE);
+        charsSentAux = write(sockfd, buf, strlen(buf));
 		if(charsSentAux > 0) {
 			numLinesSent++;
 			numCharsSent += charsSentAux;
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 			numLinesRcv++;
 			numCharsRcv += charsRcvAux;
 		}
-        printf("%s", rcv);
+        //printf("%s", rcv);
     }
 
 	fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
