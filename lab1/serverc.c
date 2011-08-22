@@ -57,20 +57,20 @@ int main()
         }
         printf("server: got connection from %s\n",inet_ntoa(their_addr.sin_addr));
 
-		//if(!fork)
-		//{
+		if(!fork())
+		{
         	while ((numbytes = read(new_fd, line, MAXLINE)) > 0) {
             	printf("Linha Recebida: %s\n", line);
             	write(new_fd, line, numbytes);
         	}
-			//close(new_fd);
-        	//printf("server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
+			close(new_fd);
+        	printf("server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
 			exit(0);
-		//}
+		}
 
         close(new_fd);
         printf("server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
-		//while(waitpid(-1, NULL, WNOHANG) > 0);
+		while(waitpid(-1, NULL, WNOHANG) > 0);
 
     }
     return 0;
