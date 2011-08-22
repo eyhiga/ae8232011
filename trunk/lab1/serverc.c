@@ -23,11 +23,14 @@
 
 int main()
 {
+    int i=0;
     int sockfd, new_fd, numbytes;  /* listen on sock_fd, new connection on new_fd */
     char line[MAXLINE];
     struct sockaddr_in my_addr;    /* my address information */
     struct sockaddr_in their_addr; /* connector's address information */
     unsigned int sin_size;
+    
+    for(i=0;i<MAXLINE;i++)line[i] = '\0';
 
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         perror("socket");
@@ -57,20 +60,21 @@ int main()
         }
         printf("server: got connection from %s\n",inet_ntoa(their_addr.sin_addr));
 
-		if(!fork())
-		{
-        	while ((numbytes = read(new_fd, line, MAXLINE)) > 0) {
-            	printf("Linha Recebida: %s\n", line);
-            	write(new_fd, line, numbytes);
-        	}
-			close(new_fd);
-        	printf("server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
-			exit(0);
-		}
+        if(!fork()){
 
+            while ((numbytes = read(new_fd, line, MAXLINE)) > 0) {
+                line[numbytes] = '\0';
+                printf("Linha Recebida: %s\n", line);
+                for(i=0; i<200000000; i++);
+                write(new_fd, line, numbytes);
+            }
         close(new_fd);
-        //printf("server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
-		while(waitpid(-1, NULL, WNOHANG) > 0);
+
+        printf("server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
+        exit(0);
+        }
+
+        while(waitpid(-1, NULL, WNOHANG) > 0);
 
     }
     return 0;
