@@ -29,11 +29,18 @@ int main()
     struct sockaddr_in my_addr;    /* my address information */
     struct sockaddr_in their_addr; /* connector's address information */
     unsigned int sin_size;
+    int yes=1;
     
     for(i=0;i<MAXLINE;i++)line[i] = '\0';
 
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         perror("socket");
+        exit(1);
+    }
+
+    if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+    {
+        perror("setsockopt");
         exit(1);
     }
 
