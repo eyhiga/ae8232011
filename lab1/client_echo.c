@@ -9,9 +9,11 @@
 #include <string.h>
 #include <strings.h>
 #include <netdb.h>
+#include <time.h>
 #include <sys/types.h>
-#include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/times.h>
+#include <netinet/in.h>
 
 #define PORT 3490    /* the port client will be connecting to */
 
@@ -19,6 +21,9 @@
 
 int main(int argc, char *argv[])
 {
+    float telapsed;
+    clock_t start, end;
+    struct tms inicio, fim;
     int sockfd, i;
     int numLinesSent=0;
     int numLinesRcv=0;
@@ -34,19 +39,19 @@ int main(int argc, char *argv[])
 
 for(i=0;i<MAXDATASIZE;i++)buf[i] = '\0';
 for(i=0;i<MAXDATASIZE;i++)rcv[i] = '\0';
-printf("ok1!!\n");
+//printf("ok1!!\n");
     if (argc != 2) {
         fprintf(stderr,"usage: client hostname\n");
         exit(1);
     }
 
-printf("ok2!!\n");
+//printf("ok2!!\n");
     if ((he=gethostbyname(argv[1])) == NULL) {  /* get the host info */
         perror("gethostbyname");
         exit(1);
     }
 
-printf("ok3!!\n");
+//printf("ok3!!\n");
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         perror("socket");
         exit(1);
@@ -55,7 +60,6 @@ printf("ok3!!\n");
     their_addr.sin_family = AF_INET;         /* host byte order */
     their_addr.sin_port = htons(PORT);     /* short, network byte order */
     their_addr.sin_addr = *((struct in_addr *)he->h_addr_list[0]);
-    printf("ok2!!\n");
     bzero(&(their_addr.sin_zero), 8);        /* zero the rest of the struct */
 
 
@@ -64,12 +68,13 @@ printf("ok3!!\n");
         exit(1);
     }
 
-printf("ok4!!\n");
+//printf("ok4!!\n");
     /* First read to store data in cache. */
     while(fgets(buf, MAXDATASIZE, stdin) != NULL){
     }
     rewind(stdin);
 
+    start = times(&inicio);
     fgets(buf, MAXDATASIZE, stdin);
     do
     {
@@ -95,7 +100,9 @@ printf("ok4!!\n");
         fgets(buf, MAXDATASIZE, stdin);
 
     }while(!feof(stdin));
-
+    end = times(&fim);
+    telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK);
+    fprintf(stderr, "Tempo total: %4.1f\n", telapsed);
     fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
     fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
     fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);

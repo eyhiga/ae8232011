@@ -15,11 +15,11 @@
 #include <sys/wait.h>
 #include <arpa/inet.h>
 
-#define MYPORT 3490    /* the port users will be connecting to */
+#define MYPORT 9034    /* the port users will be connecting to */
 
 #define BACKLOG 10     /* how many pending connections queue will hold */
 
-#define MAXLINE 100   /* Tamanho da linha recebida */
+#define MAXLINE 500   /* Tamanho da linha recebida */
 
 int main()
 {
@@ -58,19 +58,19 @@ int main()
             perror("accept");
             continue;
         }
-        printf("server: got connection from %s\n",inet_ntoa(their_addr.sin_addr));
+        fprintf(stderr, "server: got connection from %s\n",inet_ntoa(their_addr.sin_addr));
 
         if(!fork()){
 
             while ((numbytes = read(new_fd, line, MAXLINE)) > 0) {
                 line[numbytes] = '\0';
-                printf("Linha Recebida: %s\n", line);
-                for(i=0; i<200000000; i++);
+                printf("Linha Recebida: %s", line);
+                //for(i=0; i<200000000; i++);
                 write(new_fd, line, numbytes);
             }
         close(new_fd);
 
-        printf("server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
+        fprintf(stderr, "server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
         exit(0);
         }
 
