@@ -102,7 +102,7 @@ for(i=0;i<MAXDATASIZE;i++)rcv[i] = '\0';
     }while(!feof(stdin));
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK);
-    fprintf(stderr, "Tempo total: %4.1f\n", telapsed);
+    fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
     fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
     fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
     fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
