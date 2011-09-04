@@ -34,8 +34,8 @@ int main(int argc, char *argv[])
     int charsRcvAux = 0;
     char buf[MAXDATASIZE];
     char rcv[MAXDATASIZE];
-    struct hostent *he; /* Guarda informacoes do host */
-    struct sockaddr_in their_addr; /* Guarda as informacoes de quem esta se conectando */
+    struct hostent *he; /* Extrai informacoes para conexao, como o nome, do servidor */
+    struct sockaddr_in their_addr; /* Guarda as informacoes do servidor conectando */
 
     /* Limpa as strings de envio e recepcao */
     for(i=0;i<MAXDATASIZE;i++)buf[i] = '\0';
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     
     fgets(buf, MAXDATASIZE, stdin);
     
-    do /* Laco de envio das linhas e contagem das estatisticas */
+    while(!feof(stdin)) /* Laco de envio das linhas e contagem das estatisticas */
     {
     charsSentAux = write(sockfd, buf, strlen(buf)); /* Envia a string lida pelo socket */
     if(charsSentAux > 0) {
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
         buf[0]='\0';
         fgets(buf, MAXDATASIZE, stdin);
 
-    }while(!feof(stdin));
+    }
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
     
