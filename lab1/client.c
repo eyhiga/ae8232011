@@ -15,7 +15,7 @@
 #include <sys/times.h>
 #include <netinet/in.h>
 
-#define PORT 9034    /* porta a qual o cliente vai se conectar */
+#define PORT 9034    /* the port client will be connecting to */
 
 #define MAXDATASIZE 500 /* maximo de bytes que podem ser mandados de uma vez */
 
