@@ -32,10 +32,11 @@ int main(int argc, char *argv[])
     int numCharsRcv=0;
     int charsSentAux = 0;
     int charsRcvAux = 0;
+    int success;
     char buf[MAXDATASIZE];
     char rcv[MAXDATASIZE];
     char bufAux[MAXDATASIZE];
-    char rcvAux[MAXDATASIZE];
+    char* rcvAux = NULL;
     struct hostent *he; /* Extrai informacoes para conexao, como o nome, do servidor */
     struct sockaddr_in their_addr; /* Guarda as informacoes do servidor conectando */
 
@@ -84,11 +85,13 @@ int main(int argc, char *argv[])
     start = times(&inicio); /* Inicio da contagem de tempo */
 
 
+    /*
     fgets(buf, MAXDATASIZE, stdin);
 
-    while(!feof(stdin)) /* Laco de envio das linhas e contagem das estatisticas */
+    while(!feof(stdin)) // Laco de envio das linhas e contagem das estatisticas
     {
-        charsSentAux = write(sockfd, buf, strlen(buf)); /* Envia a string lida pelo socket */
+        bufAux = fputs(buf, wsock);
+        charsSentAux = strlen(bufAux); // Envia a string lida pelo socket
         if(charsSentAux > 0) {
             numLinesSent++;
             numCharsSent += charsSentAux;
@@ -98,7 +101,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        charsRcvAux = read(sockfd, rcv, MAXDATASIZE); /* Le do socket a string voltada */
+        fgets(rcv, MAXDATASIZE, rsock); // Le do socket a string voltada
+        charsRcvAux = strlen(rcvAux);
         if(charsRcvAux > 0) {
             rcv[charsRcvAux] = '\0';
             printf("%s", rcv);
@@ -109,41 +113,45 @@ int main(int argc, char *argv[])
         buf[0]='\0';
         fgets(buf, MAXDATASIZE, stdin);
 
-    }
+    }*/
 
-
-    /*
-       if(fork())
-       {
-    // Processo pai
-    fgets(rcv, MAXDATASIZE, rsock);
-    ṕrintf("%s", rcv);
+    if(fork())
+    {
+        // Processo pai
+        rcvAux = fgets(rcv, MAXDATASIZE, rsock);
+        if(rcvAux != NULL)
+        {
+            charsRcvAux = strlen(rcvAux);
+            numCharsRcv += charsRcvAux;
+            numLinesRcv++;
+            printf("%s", rcv);
+        }
     }
     else
     {
-    // Processo filho
-    fgets(buf, MAXDATASIZE, stdin);
+        // Processo filho
+        fgets(buf, MAXDATASIZE, stdin);
 
-    while(!feof(stdin))
-    {
-    bufAux = fputs(buf, MAXDATASIZE, wsock);
+        while(!feof(stdin))
+        {
+            success = fputs(buf, wsock);
 
-    if(bufAux != null)
-    {
-    charsSentAux = strlen(bufAux);
-    numCharsSent += charsSentAux;
-    numLinesSent++;
+            if(success > 0)
+            {
+                charsSentAux = strlen(bufAux);
+                numCharsSent += charsSentAux;
+                numLinesSent++;
 
-    if(charsSentAux > numBiggestLine)
-    {
-    numBiggestLine = charsSentAux;
+                if(charsSentAux > numBiggestLine)
+                {
+                    numBiggestLine = charsSentAux;
+                }
+
+            }
+            fgets(buf, MAXDATASIZE, stdin);
+        }
+
     }
-
-    }
-    fgets(buf, MAXDATASIZE, stdin);
-    }
-
-    }*/
 
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
