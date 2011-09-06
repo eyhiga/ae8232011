@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 
     }*/
 
-    if(fork())
+    /*if(fork())
     {
         // Processo pai
         rcvAux = fgets(rcv, MAXDATASIZE, rsock);
@@ -131,7 +131,8 @@ int main(int argc, char *argv[])
         }
 
     }
-    else
+    else*/
+    if(!fork())
     {
         // Processo filho
         fgets(buf, MAXDATASIZE, stdin);
@@ -157,6 +158,18 @@ int main(int argc, char *argv[])
         }
         shutdown(sockfd, SHUT_WR);
         exit(0);
+    }
+
+    rcvAux = fgets(rcv, MAXDATASIZE, rsock);
+    fflush(rsock);
+    while(rcvAux != NULL)
+    {
+        charsRcvAux = strlen(rcvAux);
+        numCharsRcv += charsRcvAux;
+        numLinesRcv++;
+        printf("%s", rcv);
+        rcvAux = fgets(rcv, MAXDATASIZE, rsock);
+        fflush(rsock);
     }
 
     wait(NULL);
