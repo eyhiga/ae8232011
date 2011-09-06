@@ -130,20 +130,6 @@ int main(int argc, char *argv[])
             fflush(rsock);
         }
 
-        wait(NULL);
-        end = times(&fim);
-        telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
-
-        /* Estatisticas */
-        fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
-        fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
-        fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
-        fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
-        fprintf(stderr, "Linhas recebidas: %d\n", numLinesRcv);
-        fprintf(stderr, "Caracteres recebidos: %d\n", numCharsRcv);
-        close(sockfd);
-
-        return 0;
     }
     else
     {
@@ -172,5 +158,20 @@ int main(int argc, char *argv[])
         shutdown(sockfd, SHUT_WR);
         exit(0);
     }
+
+    wait(NULL);
+    end = times(&fim);
+    telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
+
+    /* Estatisticas */
+    fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
+    fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
+    fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
+    fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
+    fprintf(stderr, "Linhas recebidas: %d\n", numLinesRcv);
+    fprintf(stderr, "Caracteres recebidos: %d\n", numCharsRcv);
+    close(sockfd);
+
+    return 0;
 
 }
