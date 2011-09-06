@@ -1,6 +1,6 @@
 /*
-** client.c -- a stream socket client demo
-*/
+ ** client.c -- a stream socket client demo
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,8 +34,12 @@ int main(int argc, char *argv[])
     int charsRcvAux = 0;
     char buf[MAXDATASIZE];
     char rcv[MAXDATASIZE];
+    char bufAux[MAXDATASIZE];
+    char rcvAux[MAXDATASIZE];
     struct hostent *he; /* Extrai informacoes para conexao, como o nome, do servidor */
     struct sockaddr_in their_addr; /* Guarda as informacoes do servidor conectando */
+
+    FILE *rsock, *wsock;
 
     /* Limpa as strings de envio e recepcao */
     for(i=0;i<MAXDATASIZE;i++)buf[i] = '\0';
@@ -58,6 +62,9 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    rsock = fdopen(sockfd, "r");
+    wsock = fdopen(sockfd, "w");
+
     their_addr.sin_family = AF_INET;       /* Ordem dos bytes do host */
     their_addr.sin_port = htons(PORT);     /* Ordem dos bytes da rede */
     their_addr.sin_addr = *((struct in_addr *)he->h_addr_list[0]);
@@ -73,9 +80,10 @@ int main(int argc, char *argv[])
     while(fgets(buf, MAXDATASIZE, stdin) != NULL){
     }
     rewind(stdin);
-    
+
     start = times(&inicio); /* Inicio da contagem de tempo */
-    
+
+
     fgets(buf, MAXDATASIZE, stdin);
     
     while(!feof(stdin)) /* Laco de envio das linhas e contagem das estatisticas */
@@ -102,9 +110,44 @@ int main(int argc, char *argv[])
         fgets(buf, MAXDATASIZE, stdin);
 
     }
+
+
+    /*
+    if(fork())
+    {
+        // Processo pai
+        fgets(rcv, MAXDATASIZE, rsock);
+        ṕrintf("%s", rcv);
+    }
+    else
+    {
+        // Processo filho
+        fgets(buf, MAXDATASIZE, stdin);
+
+        while(!feof(stdin))
+        {
+            bufAux = fputs(buf, MAXDATASIZE, wsock);
+
+            if(bufAux != null)
+            {
+                charsSentAux = strlen(bufAux);
+                numCharsSent += charsSentAux;
+                numLinesSent++;
+
+                if(charsSentAux > numBiggestLine)
+                {
+                    numBiggestLine = charsSentAux;
+                }
+
+            }
+            fgets(buf, MAXDATASIZE, stdin);
+        }
+
+    }*/
+
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
-    
+
     /* Estatisticas */
     fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
     fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
