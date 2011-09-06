@@ -119,13 +119,31 @@ int main(int argc, char *argv[])
     {
         // Processo pai
         rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-        if(rcvAux != NULL)
+        fflush(rsock);
+        while(rcvAux != NULL)
         {
             charsRcvAux = strlen(rcvAux);
             numCharsRcv += charsRcvAux;
             numLinesRcv++;
             printf("%s", rcv);
+            rcvAux = fgets(rcv, MAXDATASIZE, rsock);
+            fflush(rsock);
         }
+
+        wait(NULL);
+        end = times(&fim);
+        telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
+
+        /* Estatisticas */
+        fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
+        fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
+        fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
+        fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
+        fprintf(stderr, "Linhas recebidas: %d\n", numLinesRcv);
+        fprintf(stderr, "Caracteres recebidos: %d\n", numCharsRcv);
+        close(sockfd);
+
+        return 0;
     }
     else
     {
@@ -135,6 +153,7 @@ int main(int argc, char *argv[])
         while(!feof(stdin))
         {
             success = fputs(buf, wsock);
+            fflush(wsock);
 
             if(success > 0)
             {
@@ -150,20 +169,8 @@ int main(int argc, char *argv[])
             }
             fgets(buf, MAXDATASIZE, stdin);
         }
-
+        shutdown(sockfd, SHUT_WR);
+        exit(0);
     }
 
-    end = times(&fim);
-    telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
-
-    /* Estatisticas */
-    fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
-    fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
-    fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
-    fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
-    fprintf(stderr, "Linhas recebidas: %d\n", numLinesRcv);
-    fprintf(stderr, "Caracteres recebidos: %d\n", numCharsRcv);
-    close(sockfd);
-
-    return 0;
 }
