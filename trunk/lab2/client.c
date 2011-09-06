@@ -85,20 +85,20 @@ int main(int argc, char *argv[])
 
 
     fgets(buf, MAXDATASIZE, stdin);
-    
+
     while(!feof(stdin)) /* Laco de envio das linhas e contagem das estatisticas */
     {
-    charsSentAux = write(sockfd, buf, strlen(buf)); /* Envia a string lida pelo socket */
-    if(charsSentAux > 0) {
-        numLinesSent++;
-        numCharsSent += charsSentAux;
+        charsSentAux = write(sockfd, buf, strlen(buf)); /* Envia a string lida pelo socket */
+        if(charsSentAux > 0) {
+            numLinesSent++;
+            numCharsSent += charsSentAux;
 
-        if(charsSentAux > numBiggestLine) {
-            numBiggestLine = charsSentAux;
+            if(charsSentAux > numBiggestLine) {
+                numBiggestLine = charsSentAux;
+            }
         }
-    }
 
-    charsRcvAux = read(sockfd, rcv, MAXDATASIZE); /* Le do socket a string voltada */
+        charsRcvAux = read(sockfd, rcv, MAXDATASIZE); /* Le do socket a string voltada */
         if(charsRcvAux > 0) {
             rcv[charsRcvAux] = '\0';
             printf("%s", rcv);
@@ -113,35 +113,35 @@ int main(int argc, char *argv[])
 
 
     /*
-    if(fork())
-    {
-        // Processo pai
-        fgets(rcv, MAXDATASIZE, rsock);
-        ṕrintf("%s", rcv);
+       if(fork())
+       {
+    // Processo pai
+    fgets(rcv, MAXDATASIZE, rsock);
+    ṕrintf("%s", rcv);
     }
     else
     {
-        // Processo filho
-        fgets(buf, MAXDATASIZE, stdin);
+    // Processo filho
+    fgets(buf, MAXDATASIZE, stdin);
 
-        while(!feof(stdin))
-        {
-            bufAux = fputs(buf, MAXDATASIZE, wsock);
+    while(!feof(stdin))
+    {
+    bufAux = fputs(buf, MAXDATASIZE, wsock);
 
-            if(bufAux != null)
-            {
-                charsSentAux = strlen(bufAux);
-                numCharsSent += charsSentAux;
-                numLinesSent++;
+    if(bufAux != null)
+    {
+    charsSentAux = strlen(bufAux);
+    numCharsSent += charsSentAux;
+    numLinesSent++;
 
-                if(charsSentAux > numBiggestLine)
-                {
-                    numBiggestLine = charsSentAux;
-                }
+    if(charsSentAux > numBiggestLine)
+    {
+    numBiggestLine = charsSentAux;
+    }
 
-            }
-            fgets(buf, MAXDATASIZE, stdin);
-        }
+    }
+    fgets(buf, MAXDATASIZE, stdin);
+    }
 
     }*/
 
