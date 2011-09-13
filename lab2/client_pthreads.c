@@ -28,7 +28,7 @@ typedef struct writeStruct
 {
 	FILE *wsock;
     int linesSent;
-    int charsSents;
+    int charsSent;
     int biggestLineSize;
 	int sockfd;
 } writeStruct;
@@ -131,11 +131,13 @@ int main(int argc, char *argv[])
 
 void *writeProcess(void *writeData)
 {
+	FILE *wsock = ((*writeStruct)writeData)->wsock;
 	int sockfd = ((*writeStruct)writeData)->sockfd;
+	int numCharsSent = 0;
 	int charsSentAux = 0;
-	int numCharsSentAux = 0;
 	int numBiggestLine = 0;
 	int numLinesSent = 0;
+	int success = 0;
 	char *buf = malloc(sizeof(char) * MAXDATASIZE);
 
 	while(fgets(buf, MAXDATASIZE, stdin) != NULL)
@@ -145,7 +147,7 @@ void *writeProcess(void *writeData)
 
         if(success > 0)
         {
-            charsSentAux = strlen(bufAux);
+			charsSentAux = strlen(buf);
             numCharsSent += charsSentAux;
             numLinesSent++;
 
@@ -167,16 +169,15 @@ void *writeProcess(void *writeData)
 
 void *readProcess(void *readData)
 {
+	FILE *rsock = ((*readStruct)readData)->rsock;
 	char *rcv = malloc(sizeof(char) * MAXDATASIZE);
-	int charsRcvAux = 0;
 	int numCharsRcv = 0;
 	int numLinesRcv = 0;
 
     while(fgets(rcv, MAXDATASIZE, rsock) != NULL)
     {
 		fflush(rsock);
-        charsRcvAux = strlen(rcvAux);
-        numCharsRcv += charsRcvAux;
+        numCharsRcv += strlen(rcv);
         numLinesRcv++;
         printf("%s", rcv);   	
     }
