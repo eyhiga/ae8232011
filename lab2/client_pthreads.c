@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
 
 	pthread_create(&write, NULL, writeProcess, (void*)writeData);
 	pthread_create(&read, NULL, readProcess, (void*)readData);
+	//readProcess((void*)readData);
 
 	pthread_join(write, NULL);
 	pthread_join(read, NULL);
@@ -174,21 +175,25 @@ void *readProcess(void *readData)
 {
 	FILE *rsock;
 	rsock = ((readStruct*)readData)->rsock;
-	char *rcv;
+	char *rcv, *rcvAux;
 	rcv = malloc(sizeof(char) * MAXDATASIZE);
+	rcvAux = malloc(sizeof(char) * MAXDATASIZE);
+	//char *rcv = "Teste";
 	int numCharsRcv = 0;
 	int numLinesRcv = 0;
 
-    /*while(fgets(rcv, MAXDATASIZE, rsock) != NULL)
+	rcvAux = fgets(rcv, MAXDATASIZE, rsock);
+    /*while(rcvAux != NULL)
     {
 		fflush(rsock);
         numCharsRcv += strlen(rcv);
         numLinesRcv++;
-        printf("%s", rcv);   	
+        printf("%s", rcv);
+		rcvAux = fgets(rcv, MAXDATASIZE, rsock);
     }*/
 	//fgets(rcv, MAXDATASIZE, rsock);
 	//printf("%s", rcv);
 	((readStruct*)readData)->linesRead = numLinesRcv;
 	((readStruct*)readData)->charsRead = numCharsRcv;
-	free(rcv);
+	//free(rcv);
 }
