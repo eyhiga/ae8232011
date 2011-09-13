@@ -168,7 +168,7 @@ void *writeProcess(void *writeData)
 	((writeStruct*)writeData)->charsSent = numCharsSent;
 	((writeStruct*)writeData)->biggestLineSize = numBiggestLine;
 
-    shutdown(sockfd, SHUT_WR);
+    //shutdown(sockfd, SHUT_WR);
 }
 
 void *readProcess(void *readData)
