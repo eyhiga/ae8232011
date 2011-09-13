@@ -86,19 +86,24 @@ int main()
 	
 	/* Cria um processo filho para cuidar do envio na conexao estabelecida em new_fd*/
         if(!fork()){
-            while(fgets(line, MAXLINE, rsock) != NULL) {
-	        fflush(rsock);
+
+            while ((fgets(line, MAXLINE, rsock)) != NULL) {
+                //line[numbytes] = '\0';
+                fflush(rsock);
                 printf("Linha Recebida: %s", line);
                 fputs(line, wsock);
                 fflush(wsock);
             }
-        close(new_fd);
+            close(new_fd);
 
-        fprintf(stderr, "server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
-        exit(0);
+            fprintf(stderr, "server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
+            exit(0);
         }
 
+        close(new_fd);
+
         while(waitpid(-1, NULL, WNOHANG) > 0);
+
 
     }
     return 0;
