@@ -131,10 +131,10 @@ int main(int argc, char *argv[])
 
 }
 
-void *writeProcess(void *writeData)
+void*writeProcess(void *writeData)
 {
-	FILE *wsock = ((*writeStruct)writeData)->wsock;
-	int sockfd = ((*writeStruct)writeData)->sockfd;
+	FILE *wsock = ((writeStruct*)writeData)->wsock;
+	int sockfd = ((writeStruct*)writeData)->sockfd;
 	int numCharsSent = 0;
 	int charsSentAux = 0;
 	int numBiggestLine = 0;
@@ -169,9 +169,9 @@ void *writeProcess(void *writeData)
     shutdown(sockfd, SHUT_WR);
 }
 
-void *readProcess(void *readData)
+void*readProcess(void *readData)
 {
-	FILE *rsock = ((*readStruct)readData)->rsock;
+	FILE *rsock = ((readStruct*)readData)->rsock;
 	char *rcv = malloc(sizeof(char) * MAXDATASIZE);
 	int numCharsRcv = 0;
 	int numLinesRcv = 0;
@@ -183,7 +183,7 @@ void *readProcess(void *readData)
         numLinesRcv++;
         printf("%s", rcv);   	
     }
-	((*readStruct)readData)->linesRead = numLinesRcv;
-	((*readStruct)readData)->charsRead = numCharsRcv;
+	((readStruct*)readData)->linesRead = numLinesRcv;
+	((readStruct*)readData)->charsRead = numCharsRcv;
 	free(rcv);
 }
