@@ -87,9 +87,10 @@ int main(int argc, char *argv[])
     if(!fork())
     {
         // Processo filho
-        fgets(buf, MAXDATASIZE, stdin);
+        //fgets(buf, MAXDATASIZE, stdin);
 
-        while(!feof(stdin))
+        //while(!feof(stdin))
+        while(fgets(buf, MAXDATASIZE, stdin) != NULL)
         {
             success = fputs(buf, wsock);
             fflush(wsock);
@@ -106,22 +107,22 @@ int main(int argc, char *argv[])
                 }
 
             }
-            fgets(buf, MAXDATASIZE, stdin);
+            //fgets(buf, MAXDATASIZE, stdin);
         }
-        printf("1\n");
+        /*printf("1\n");
         strcpy(buf, "\n");
         printf("2\n");
         fputs(buf, wsock);
         printf("3\n");
         fflush(wsock);
-        printf("4\n");
+        printf("4\n");*/
         shutdown(sockfd, SHUT_WR);
-        printf("5\n");
+        //printf("5\n");
         exit(0);
     }
 
     rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-    while(rcvAux[0] != '\n')
+    while(rcvAux != NULL)
     {
         charsRcvAux = strlen(rcvAux);
         numCharsRcv += charsRcvAux;
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
        	fflush(rsock);
     }
 
-    wait(NULL);
+    printf("ok\n");
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
 
