@@ -87,9 +87,6 @@ int main(int argc, char *argv[])
     if(!fork())
     {
         // Processo filho
-        //fgets(buf, MAXDATASIZE, stdin);
-
-        //while(!feof(stdin))
         while(fgets(buf, MAXDATASIZE, stdin) != NULL)
         {
             success = fputs(buf, wsock);
@@ -107,17 +104,8 @@ int main(int argc, char *argv[])
                 }
 
             }
-            //fgets(buf, MAXDATASIZE, stdin);
         }
-        /*printf("1\n");
-        strcpy(buf, "\n");
-        printf("2\n");
-        fputs(buf, wsock);
-        printf("3\n");
-        fflush(wsock);
-        printf("4\n");*/
         shutdown(sockfd, SHUT_WR);
-        //printf("5\n");
         exit(0);
     }
 
