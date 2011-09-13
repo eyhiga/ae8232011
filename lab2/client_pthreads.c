@@ -14,10 +14,28 @@
 #include <sys/socket.h>
 #include <sys/times.h>
 #include <netinet/in.h>
+#include <pthread.h>
 
 #define PORT 9034    /* the port client will be connecting to */
 
 #define MAXDATASIZE 500 /* maximo de bytes que podem ser mandados de uma vez */
+
+void sendThread();
+
+void readThread();
+
+typedef struct sendStruct
+{
+    int linesSent;
+    int charsSents;
+    int biggestLineSize;
+} sendStruct;
+
+typedef struct readStruct
+{
+    int linesRead;
+    int charsRead;
+} readStruct;
 
 int main(int argc, char *argv[])
 {
@@ -25,18 +43,6 @@ int main(int argc, char *argv[])
     clock_t start, end;
     struct tms inicio, fim;
     int sockfd, i;
-    int numLinesSent=0;
-    int numLinesRcv=0;
-    int numBiggestLine=0;
-    int numCharsSent=0;
-    int numCharsRcv=0;
-    int charsSentAux = 0;
-    int charsRcvAux = 0;
-    int success;
-    char *buf = malloc(MAXDATASIZE * sizeof(char));
-    char rcv[MAXDATASIZE];
-    char bufAux[MAXDATASIZE];
-    char* rcvAux = NULL;
     struct hostent *he; /* Extrai informacoes para conexao, como o nome, do servidor */
     struct sockaddr_in their_addr; /* Guarda as informacoes do servidor conectando */
 
@@ -83,42 +89,6 @@ int main(int argc, char *argv[])
     rewind(stdin);
 
     start = times(&inicio); /* Inicio da contagem de tempo */
-
-    if(!fork())
-    {
-        // Processo filho
-        while(fgets(buf, MAXDATASIZE, stdin) != NULL)
-        {
-            success = fputs(buf, wsock);
-            fflush(wsock);
-
-            if(success > 0)
-            {
-                charsSentAux = strlen(bufAux);
-                numCharsSent += charsSentAux;
-                numLinesSent++;
-
-                if(charsSentAux > numBiggestLine)
-                {
-                    numBiggestLine = charsSentAux;
-                }
-
-            }
-        }
-        shutdown(sockfd, SHUT_WR);
-        exit(0);
-    }
-
-    rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-    while(rcvAux != NULL)
-    {
-        charsRcvAux = strlen(rcvAux);
-        numCharsRcv += charsRcvAux;
-        numLinesRcv++;
-        printf("%s", rcv);
-        rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-       	fflush(rsock);
-    }
 
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
