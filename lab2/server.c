@@ -80,6 +80,7 @@ int main()
             perror("wsock");
 	    exit(1);
         }
+/*sdokfjsofjsojfsoj*/
         
         fprintf(stderr, "server: got connection from %s\n",inet_ntoa(their_addr.sin_addr));
 	
