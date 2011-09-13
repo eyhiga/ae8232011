@@ -108,21 +108,27 @@ int main(int argc, char *argv[])
             }
             fgets(buf, MAXDATASIZE, stdin);
         }
-        free(buf);
+        printf("1\n");
+        strcpy(buf, "\n");
+        printf("2\n");
+        fputs(buf, wsock);
+        printf("3\n");
+        fflush(wsock);
+        printf("4\n");
         shutdown(sockfd, SHUT_WR);
+        printf("5\n");
         exit(0);
     }
 
     rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-    fflush(rsock);
-    while(rcvAux != NULL)
+    while(rcvAux[0] != '\n')
     {
         charsRcvAux = strlen(rcvAux);
         numCharsRcv += charsRcvAux;
         numLinesRcv++;
         printf("%s", rcv);
         rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-        fflush(rsock);
+       	fflush(rsock);
     }
 
     wait(NULL);
