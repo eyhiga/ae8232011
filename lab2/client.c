@@ -105,6 +105,7 @@ int main(int argc, char *argv[])
 
             }
         }
+        fputs(buf, wsock);
         shutdown(sockfd, SHUT_WR);
         exit(0);
     }

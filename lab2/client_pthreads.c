@@ -20,21 +20,25 @@
 
 #define MAXDATASIZE 500 /* maximo de bytes que podem ser mandados de uma vez */
 
-void sendThread();
+void writeProcess(void *writeData);
 
-void readThread();
+void readProcess(void *readData);
 
-typedef struct sendStruct
+typedef struct writeStruct
 {
+	FILE *wsock;
     int linesSent;
     int charsSents;
     int biggestLineSize;
-} sendStruct;
+	int sockfd;
+} writeStruct;
 
 typedef struct readStruct
 {
+	FILE *rsock;
     int linesRead;
     int charsRead;
+	int sockfd;
 } readStruct;
 
 int main(int argc, char *argv[])
@@ -42,15 +46,22 @@ int main(int argc, char *argv[])
     float telapsed;
     clock_t start, end;
     struct tms inicio, fim;
-    int sockfd, i;
+    int sockfd;
+	char buf[500];
+
+	writeStruct *writeData  = malloc(sizeof(writeData));
+	readStruct *readData = malloc(sizeof(readData));
+
+	pthread_t write, read;
+
     struct hostent *he; /* Extrai informacoes para conexao, como o nome, do servidor */
     struct sockaddr_in their_addr; /* Guarda as informacoes do servidor conectando */
 
     FILE *rsock, *wsock;
 
     /* Limpa as strings de envio e recepcao */
-    for(i=0;i<MAXDATASIZE;i++)buf[i] = '\0';
-    for(i=0;i<MAXDATASIZE;i++)rcv[i] = '\0';
+    //for(i=0;i<MAXDATASIZE;i++)buf[i] = '\0';
+    //for(i=0;i<MAXDATASIZE;i++)rcv[i] = '\0';
 
     if (argc != 2) {
         fprintf(stderr,"usage: client hostname\n");
@@ -72,6 +83,12 @@ int main(int argc, char *argv[])
     rsock = fdopen(sockfd, "r");
     wsock = fdopen(sockfd, "w");
 
+	writeData->wsock = wsock;
+	readData->rsock = rsock;
+
+	writeData->sockfd = sockfd;
+	readData->sockfd = sockfd;
+
     their_addr.sin_family = AF_INET;       /* Ordem dos bytes do host */
     their_addr.sin_port = htons(PORT);     /* Ordem dos bytes da rede */
     their_addr.sin_addr = *((struct in_addr *)he->h_addr_list[0]);
@@ -86,22 +103,84 @@ int main(int argc, char *argv[])
     /* Primeira leitura para guardar arquivo na cache */
     while(fgets(buf, MAXDATASIZE, stdin) != NULL){
     }
-    rewind(stdin);
+    rewind(stdin);	
 
     start = times(&inicio); /* Inicio da contagem de tempo */
+
+	pthread_create(&write, NULL, writeProcess, (void*)writeData);
+	pthread_create(&read, NULL, readProcess, (void*)readData);
+
+	pthread_join(write, NULL);
+	pthread_join(read, NULL);
 
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
 
     /* Estatisticas */
     fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
-    fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
-    fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
-    fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
-    fprintf(stderr, "Linhas recebidas: %d\n", numLinesRcv);
-    fprintf(stderr, "Caracteres recebidos: %d\n", numCharsRcv);
+    fprintf(stderr, "Linhas enviadas: %d\n", writeData->linesSent);
+    fprintf(stderr, "Maior linha: %d\n", writeData->biggestLineSize);
+    fprintf(stderr, "Caracteres enviados: %d\n", writeData->charsSent);
+    fprintf(stderr, "Linhas recebidas: %d\n", readData->linesRead);
+    fprintf(stderr, "Caracteres recebidos: %d\n", readData->charsRead);
     close(sockfd);
 
     return 0;
 
+}
+
+void *writeProcess(void *writeData)
+{
+	int sockfd = ((*writeStruct)writeData)->sockfd;
+	int charsSentAux = 0;
+	int numCharsSentAux = 0;
+	int numBiggestLine = 0;
+	int numLinesSent = 0;
+	char *buf = malloc(sizeof(char) * MAXDATASIZE);
+
+	while(fgets(buf, MAXDATASIZE, stdin) != NULL)
+    {
+        success = fputs(buf, wsock);
+        fflush(wsock);
+
+        if(success > 0)
+        {
+            charsSentAux = strlen(bufAux);
+            numCharsSent += charsSentAux;
+            numLinesSent++;
+
+            if(charsSentAux > numBiggestLine)
+            {
+                numBiggestLine = charsSentAux;
+            }
+
+        }
+    }
+    fputs(buf, wsock);
+	free(buf);
+	((writeStruct*)writeData)->linesSent = numLinesSent;
+	((writeStruct*)writeData)->charsSent = numCharsSent;
+	((writeStruct*)writeData)->biggestLineSize = numBiggestLine;
+
+    shutdown(sockfd, SHUT_WR);
+}
+
+void *readProcess(void *readData)
+{
+	char *rcv = malloc(sizeof(char) * MAXDATASIZE);
+	int charsRcvAux = 0;
+	int numCharsRcv = 0;
+	int numLinesRcv = 0;
+
+    while(fgets(rcv, MAXDATASIZE, rsock) != NULL)
+    {
+		fflush(rsock);
+        charsRcvAux = strlen(rcvAux);
+        numCharsRcv += charsRcvAux;
+        numLinesRcv++;
+        printf("%s", rcv);   	
+    }
+	((*readStruct)readData)->linesRead = numLinesRcv;
+	((*readStruct)readData)->charsRead = numCharsRcv;
+	free(rcv);
 }
