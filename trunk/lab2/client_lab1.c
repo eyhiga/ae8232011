@@ -88,8 +88,13 @@ int main(int argc, char *argv[])
 
     while(!feof(stdin)) // Laco de envio das linhas e contagem das estatisticas
     {
-        fputs(buf, wsock);
+        success = fputs(buf, wsock);
         fflush(wsock);
+        
+        if(success > 0)
+        {
+        	charsSentAux = strlen(buf);
+        }
 
         if(charsSentAux > 0) {
             numLinesSent++;
@@ -102,7 +107,7 @@ int main(int argc, char *argv[])
 
         fgets(rcv, MAXDATASIZE, rsock); // Le do socket a string voltada
         fflush(rsock);
-        charsRcvAux = strlen(rcvAux);
+        charsRcvAux = strlen(rcv);
         if(charsRcvAux > 0) {
             rcv[charsRcvAux] = '\0';
             printf("%s", rcv);
