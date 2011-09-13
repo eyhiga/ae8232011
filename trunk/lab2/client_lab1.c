@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
         
         if(success > 0)
         {
-        	charsSentAux = strlen(buf);
+            charsSentAux = strlen(buf);
         }
 
         if(charsSentAux > 0) {
@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
         }
 
         buf[0]='\0';
+        printf("%s", buf);
         fgets(buf, MAXDATASIZE, stdin);
 
     }
