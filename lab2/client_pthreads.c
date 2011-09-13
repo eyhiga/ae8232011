@@ -49,8 +49,10 @@ int main(int argc, char *argv[])
     int sockfd;
 	char buf[500];
 
-	writeStruct *writeData  = malloc(sizeof(writeData));
-	readStruct *readData = malloc(sizeof(readData));
+	writeStruct *writeData;
+	readStruct *readData;
+	writeData = malloc(sizeof(writeData));
+	readData = malloc(sizeof(readData));
 
 	pthread_t write, read;
 
