@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     int charsSentAux = 0;
     int charsRcvAux = 0;
     int success;
-    char buf[MAXDATASIZE];
+    char *buf = malloc(MAXDATASIZE * sizeof(char));
     char rcv[MAXDATASIZE];
     char bufAux[MAXDATASIZE];
     char* rcvAux = NULL;
@@ -84,54 +84,6 @@ int main(int argc, char *argv[])
 
     start = times(&inicio); /* Inicio da contagem de tempo */
 
-
-    /*
-    fgets(buf, MAXDATASIZE, stdin);
-
-    while(!feof(stdin)) // Laco de envio das linhas e contagem das estatisticas
-    {
-        bufAux = fputs(buf, wsock);
-        charsSentAux = strlen(bufAux); // Envia a string lida pelo socket
-        if(charsSentAux > 0) {
-            numLinesSent++;
-            numCharsSent += charsSentAux;
-
-            if(charsSentAux > numBiggestLine) {
-                numBiggestLine = charsSentAux;
-            }
-        }
-
-        fgets(rcv, MAXDATASIZE, rsock); // Le do socket a string voltada
-        charsRcvAux = strlen(rcvAux);
-        if(charsRcvAux > 0) {
-            rcv[charsRcvAux] = '\0';
-            printf("%s", rcv);
-            numLinesRcv++;
-            numCharsRcv += charsRcvAux;
-        }
-
-        buf[0]='\0';
-        fgets(buf, MAXDATASIZE, stdin);
-
-    }*/
-
-    /*if(fork())
-    {
-        // Processo pai
-        rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-        fflush(rsock);
-        while(rcvAux != NULL)
-        {
-            charsRcvAux = strlen(rcvAux);
-            numCharsRcv += charsRcvAux;
-            numLinesRcv++;
-            printf("%s", rcv);
-            rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-            fflush(rsock);
-        }
-
-    }
-    else*/
     if(!fork())
     {
         // Processo filho
@@ -156,6 +108,7 @@ int main(int argc, char *argv[])
             }
             fgets(buf, MAXDATASIZE, stdin);
         }
+        free(buf);
         shutdown(sockfd, SHUT_WR);
         exit(0);
     }
