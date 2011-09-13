@@ -20,9 +20,9 @@
 
 #define MAXDATASIZE 500 /* maximo de bytes que podem ser mandados de uma vez */
 
-void writeProcess(void *writeData);
+void *writeProcess(void *writeData);
 
-void readProcess(void *readData);
+void *readProcess(void *readData);
 
 typedef struct writeStruct
 {
