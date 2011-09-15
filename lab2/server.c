@@ -88,7 +88,7 @@ int main()
         if(!fork()){
 
             while ((fgets(line, MAXLINE, rsock)) != NULL) {
-                //line[numbytes] = '\0';
+                line[strlen(line)] = '\0';
                 fflush(rsock);
                 printf("Linha Recebida: %s", line);
                 fputs(line, wsock);
