@@ -168,32 +168,25 @@ void *writeProcess(void *writeData)
 	((writeStruct*)writeData)->charsSent = numCharsSent;
 	((writeStruct*)writeData)->biggestLineSize = numBiggestLine;
 
-    //shutdown(sockfd, SHUT_WR);
+    shutdown(sockfd, SHUT_WR);
 }
 
 void *readProcess(void *readData)
 {
 	FILE *rsock;
 	rsock = ((readStruct*)readData)->rsock;
-	char *rcv, *rcvAux;
+	char *rcv;
 	rcv = malloc(sizeof(char) * MAXDATASIZE);
-	rcvAux = malloc(sizeof(char) * MAXDATASIZE);
-	//char *rcv = "Teste";
 	int numCharsRcv = 0;
 	int numLinesRcv = 0;
 
-	rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-    /*while(rcvAux != NULL)
+    while(fgets(rcv, MAXDATASIZE, rsock) != NULL)
     {
-		fflush(rsock);
         numCharsRcv += strlen(rcv);
         numLinesRcv++;
         printf("%s", rcv);
-		rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-    }*/
-	//fgets(rcv, MAXDATASIZE, rsock);
-	//printf("%s", rcv);
+    }
 	((readStruct*)readData)->linesRead = numLinesRcv;
 	((readStruct*)readData)->charsRead = numCharsRcv;
-	//free(rcv);
+	free(rcv);
 }
