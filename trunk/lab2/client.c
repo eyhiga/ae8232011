@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
 
     /* Estatisticas */
-    //fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
+    fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
     //fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
     //fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
     //fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
