@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     int success;
     char *buf = malloc(MAXDATASIZE * sizeof(char));
     char rcv[MAXDATASIZE];
-    char bufAux[MAXDATASIZE];
+    //char bufAux[MAXDATASIZE];
     char* rcvAux = NULL;
     struct hostent *he; /* Extrai informacoes para conexao, como o nome, do servidor */
     struct sockaddr_in their_addr; /* Guarda as informacoes do servidor conectando */
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
             if(success > 0)
             {
-                charsSentAux = strlen(bufAux);
+                charsSentAux = strlen(buf);
                 numCharsSent += charsSentAux;
                 numLinesSent++;
 
@@ -107,6 +107,11 @@ int main(int argc, char *argv[])
         }
         fputs(buf, wsock);
         shutdown(sockfd, SHUT_WR);
+        //fclose(wsock);
+        //wait(pid);
+        fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
+    	fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
+    	fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
         exit(0);
     }
 
@@ -125,13 +130,14 @@ int main(int argc, char *argv[])
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
 
     /* Estatisticas */
-    fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
-    fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
-    fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
-    fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
+    //fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
+    //fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
+    //fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
+    //fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
     fprintf(stderr, "Linhas recebidas: %d\n", numLinesRcv);
     fprintf(stderr, "Caracteres recebidos: %d\n", numCharsRcv);
     close(sockfd);
+    fclose(rsock);
 
     return 0;
 

@@ -80,11 +80,10 @@ int main()
             perror("wsock");
 	    exit(1);
         }
-/*sdokfjsofjsojfsoj*/
         
         fprintf(stderr, "server: got connection from %s\n",inet_ntoa(their_addr.sin_addr));
 	
-	/* Cria um processo filho para cuidar do envio na conexao estabelecida em new_fd*/
+		/* Cria um processo filho para cuidar do envio na conexao estabelecida em new_fd*/
         if(!fork()){
 
             while ((fgets(line, MAXLINE, rsock)) != NULL) {
