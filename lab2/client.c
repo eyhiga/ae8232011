@@ -21,6 +21,7 @@
 
 int main(int argc, char *argv[])
 {
+    pid_t pid_c;
     float telapsed;
     clock_t start, end;
     struct tms inicio, fim;
@@ -84,7 +85,7 @@ int main(int argc, char *argv[])
 
     start = times(&inicio); /* Inicio da contagem de tempo */
 
-    if(!fork())
+    if(!(pid_c = fork()))
     {
         // Processo filho
         while(fgets(buf, MAXDATASIZE, stdin) != NULL)
@@ -123,12 +124,12 @@ int main(int argc, char *argv[])
         numLinesRcv++;
         printf("%s", rcv);
         rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-       	fflush(rsock);
+        fflush(rsock);
     }
 
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
-
+    wait(pid_c);
     /* Estatisticas */
     fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
     //fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
