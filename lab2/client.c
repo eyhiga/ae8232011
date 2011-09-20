@@ -21,7 +21,7 @@
 
 int main(int argc, char *argv[])
 {
-    pid_t pid_c;
+
     float telapsed;
     clock_t start, end;
     struct tms inicio, fim;
@@ -36,7 +36,6 @@ int main(int argc, char *argv[])
     int success;
     char *buf = malloc(MAXDATASIZE * sizeof(char));
     char rcv[MAXDATASIZE];
-    //char bufAux[MAXDATASIZE];
     char* rcvAux = NULL;
     struct hostent *he; /* Extrai informacoes para conexao, como o nome, do servidor */
     struct sockaddr_in their_addr; /* Guarda as informacoes do servidor conectando */
@@ -85,7 +84,7 @@ int main(int argc, char *argv[])
 
     start = times(&inicio); /* Inicio da contagem de tempo */
 
-    if(!(pid_c = fork()))
+    if(!fork())
     {
         // Processo filho
         while(fgets(buf, MAXDATASIZE, stdin) != NULL)
@@ -108,8 +107,6 @@ int main(int argc, char *argv[])
         }
         fputs(buf, wsock);
         shutdown(sockfd, SHUT_WR);
-        //fclose(wsock);
-        //wait(pid);
         fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
     	fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
     	fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
@@ -129,12 +126,8 @@ int main(int argc, char *argv[])
 
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
-    wait(pid_c);
     /* Estatisticas */
     fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
-    //fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
-    //fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
-    //fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
     fprintf(stderr, "Linhas recebidas: %d\n", numLinesRcv);
     fprintf(stderr, "Caracteres recebidos: %d\n", numCharsRcv);
     close(sockfd);
