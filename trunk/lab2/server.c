@@ -31,6 +31,7 @@ int main()
     unsigned int sin_size;
     int yes=1;
     
+    /* Descritores de arquivo que serão abertos no socket */
     FILE *rsock, *wsock;
 
     for(i=0;i<MAXLINE;i++)line[i] = '\0';
@@ -72,6 +73,7 @@ int main()
             continue;
         }
         
+        /* Abre ambos os descritores de arquivo no socket usado para envio e recebimento */
         if((rsock = fdopen(new_fd, "r")) == NULL){
             perror("rsock");
 	    exit(1);
@@ -83,9 +85,10 @@ int main()
         
         fprintf(stderr, "server: got connection from %s\n",inet_ntoa(their_addr.sin_addr));
 	
-		/* Cria um processo filho para cuidar do envio na conexao estabelecida em new_fd*/
+	/* Cria um processo filho para cuidar do envio na conexao estabelecida em new_fd */
         if(!fork()){
-
+	    
+	    /* Loop de recebimento e ecoamento */
             while ((fgets(line, MAXLINE, rsock)) != NULL) {
                 line[strlen(line)] = '\0';
                 fflush(rsock);
@@ -98,7 +101,8 @@ int main()
             fprintf(stderr, "server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
             exit(0);
         }
-
+        
+        /* Fecha o socket de envio e recebimento */
         close(new_fd);
 
         while(waitpid(-1, NULL, WNOHANG) > 0);

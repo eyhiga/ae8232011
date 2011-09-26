@@ -62,7 +62,8 @@ int main(int argc, char *argv[])
         perror("socket");
         exit(1);
     }
-
+    
+    /* abre ambos os descritores de arquivo no socket a ser usado para o envio e recebimento */
     rsock = fdopen(sockfd, "r");
     wsock = fdopen(sockfd, "w");
 
@@ -86,7 +87,7 @@ int main(int argc, char *argv[])
 
     if(!fork())
     {
-        // Processo filho
+        // Processo filho - Envio
         while(fgets(buf, MAXDATASIZE, stdin) != NULL)
         {
             success = fputs(buf, wsock);
@@ -106,13 +107,18 @@ int main(int argc, char *argv[])
             }
         }
         fputs(buf, wsock);
+	
+	/* Fechamento do socket */
         shutdown(sockfd, SHUT_WR);
+	
+	/* Estatisticas de envio do processo filho */
         fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
     	fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
     	fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
         exit(0);
     }
 
+    /* Processo pai - Laço de recebimento de dados */
     rcvAux = fgets(rcv, MAXDATASIZE, rsock);
     while(rcvAux != NULL)
     {
@@ -126,7 +132,8 @@ int main(int argc, char *argv[])
 
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
-    /* Estatisticas */
+    
+    /* Estatisticas de recebimento do processo pai */
     fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
     fprintf(stderr, "Linhas recebidas: %d\n", numLinesRcv);
     fprintf(stderr, "Caracteres recebidos: %d\n", numCharsRcv);
