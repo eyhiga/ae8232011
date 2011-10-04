@@ -24,8 +24,9 @@ int main(int argc, char *argv[])
 	struct hostent *he;
 	int numBytesSent = 0;
     int contLin = 0;
+    char buf[MAXDATASIZE];
 
-	if (argc != 3) {
+	if (argc != 2) {
 		fprintf(stderr,"usage: talker hostname message\n");
 		exit(1);
 	}
