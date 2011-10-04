@@ -24,7 +24,8 @@ int main(int argc, char *argv[])
 	struct hostent *he;
 	int numBytesSent = 0;
     int contLin = 0;
-    char buf[MAXDATASIZE];
+    char bufRcv[MAXDATASIZE];
+    char bufSent[MAXDATASIZE];
 
 	if (argc != 2) {
 		fprintf(stderr,"usage: talker hostname message\n");
@@ -50,15 +51,16 @@ int main(int argc, char *argv[])
     }
     rewind(stdin);
     
-    while(fgets(buf, MAXDATASIZE, stdin) != NULL)
+    while(fgets(bufSent, MAXDATASIZE, stdin) != NULL)
     {
-        numBytesSent += sendto(sockfd, buf, strlen(buf), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+        numBytesSent += sendto(sockfd, bufSent, strlen(bufSent, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
         contLin++;
-        printf("%s", buf);
-        //recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len));
+        //printf("%s", bufSent);
+        recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len));
+        printf("%s", bufRcv);
     }
 
-    sendto(sockfd, "", 0, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+    //sendto(sockfd, "", 0, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
 
     fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
     fprintf(stderr, "Linhas enviadas: %d\n", contLin);
