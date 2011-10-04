@@ -22,7 +22,8 @@ int main(void)
 	struct sockaddr_in my_addr;	// my address information
 	struct sockaddr_in their_addr; // connector's address information
 	socklen_t addr_len;
-	int numbytes;
+	int numBytesSent = 0;
+	int numBytesRcv = 0;
 	char buf[MAXBUFLEN];
 
 	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
@@ -42,22 +43,27 @@ int main(void)
 	}
 	
 	addr_len = sizeof(struct sockaddr);
-	while(true)
+	while(1)
 	{
 		if(!fork())
 		{
 			int contChars = 0;
 			int contLin = 0;
-			while((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
+			while((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
 			{
-				contChars += numBytes;
+			    buf[numBytesRcv] = '\0';
+			    printf("%s", buf);
+			    printf("got packet from %s\n",inet_ntoa(their_addr.sin_addr));
+	            printf("packet is %d bytes long\n",numBytesRcv);
+				contChars += numBytesRcv;
 				contLin++;
 				
-				sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+				numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
 				
 			}
 			fprintf(stderr, "Caracteres recebidos: %d\n", contChars);
 			fprintf(stderr, "Linhas recebidas: %d\n", contLin);
+			fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
 		
 			/*if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
 				(struct sockaddr *)&their_addr, &addr_len)) == -1) {
@@ -66,12 +72,6 @@ int main(void)
 			}*/
 		}
 	}
-
-
-	printf("got packet from %s\n",inet_ntoa(their_addr.sin_addr));
-	printf("packet is %d bytes long\n",numbytes);
-	buf[numbytes] = '\0';
-	printf("packet contains \"%s\"\n",buf);
 
 	close(sockfd);
 
