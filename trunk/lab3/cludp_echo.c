@@ -15,7 +15,7 @@
 
 #define SERVERPORT 4950	// the port users will be connecting to
 
-#define MAXDATASIZE 500
+#define MAXBUFLEN 500
 
 int main(int argc, char *argv[])
 {
@@ -24,8 +24,9 @@ int main(int argc, char *argv[])
 	struct hostent *he;
 	int numBytesSent = 0;
     int contLin = 0;
-    char bufRcv[MAXDATASIZE];
-    char bufSent[MAXDATASIZE];
+    char bufRcv[MAXBUFLEN];
+    char bufSent[MAXBUFLEN];
+    socklen_t addr_len;
 
 	if (argc != 2) {
 		fprintf(stderr,"usage: talker hostname message\n");
@@ -47,16 +48,18 @@ int main(int argc, char *argv[])
 	their_addr.sin_addr = *((struct in_addr *)he->h_addr);
 	memset(&(their_addr.sin_zero), '\0', 8);  // zero the rest of the struct
 
-    while(fgets(buf, MAXDATASIZE, stdin) != NULL){
+    addr_len = sizeof(struct sockaddr);
+    
+    while(fgets(bufSent, MAXBUFLEN, stdin) != NULL){
     }
     rewind(stdin);
     
-    while(fgets(bufSent, MAXDATASIZE, stdin) != NULL)
+    while(fgets(bufSent, MAXBUFLEN, stdin) != NULL)
     {
-        numBytesSent += sendto(sockfd, bufSent, strlen(bufSent, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+        numBytesSent += sendto(sockfd, bufSent, strlen(bufSent), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
         contLin++;
         //printf("%s", bufSent);
-        recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len));
+        recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
         printf("%s", bufRcv);
     }
 
