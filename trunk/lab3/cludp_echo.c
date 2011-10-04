@@ -55,9 +55,15 @@ int main(int argc, char *argv[])
         numBytesSent += sendto(sockfd, buf, strlen(buf), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
         contLin++;
         printf("%s", buf);
+        //recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len));
     }
 
-	//printf("sent %d bytes to %s\n", numbytes, inet_ntoa(their_addr.sin_addr));
+    sendto(sockfd, "", 0, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+
+    fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
+    fprintf(stderr, "Linhas enviadas: %d\n", contLin);
+    
+    //printf("sent %d bytes to %s\n", numbytes, inet_ntoa(thenumBytesSentir_addr.sin_addr));
 
 	close(sockfd);
 

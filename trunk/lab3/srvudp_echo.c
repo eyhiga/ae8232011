@@ -43,18 +43,18 @@ int main(void)
 	}
 	
 	addr_len = sizeof(struct sockaddr);
-	while(1)
-	{
-		if(!fork())
-		{
+	/*while(1)
+	{*/
+		/*if(!fork())
+		{*/
 			int contChars = 0;
 			int contLin = 0;
 			while((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
 			{
 			    buf[numBytesRcv] = '\0';
 			    printf("%s", buf);
-			    printf("got packet from %s\n",inet_ntoa(their_addr.sin_addr));
-	            printf("packet is %d bytes long\n",numBytesRcv);
+			    //printf("got packet from %s\n",inet_ntoa(their_addr.sin_addr));
+	            //printf("packet is %d bytes long\n",numBytesRcv);
 				contChars += numBytesRcv;
 				contLin++;
 				
@@ -70,10 +70,10 @@ int main(void)
 				perror("recvfrom");
 				exit(1);
 			}*/
-		}
-	}
-
-	close(sockfd);
+		//}
+		close(sockfd);
+        //while(waitpid(-1, NULL, WNOHANG) > 0);
+	//}
 
 	return 0;
 }
