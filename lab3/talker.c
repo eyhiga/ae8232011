@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
 	struct hostent *he;
 	int numbytes;
 
-	if (argc != 3) {
-		fprintf(stderr,"usage: talker hostname message\n");
+	if (argc != 2) {
+		fprintf(stderr,"usage: talker hostname\n");
 		exit(1);
 	}
 

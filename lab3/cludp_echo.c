@@ -15,12 +15,15 @@
 
 #define SERVERPORT 4950	// the port users will be connecting to
 
+#define MAXDATASIZE 500
+
 int main(int argc, char *argv[])
 {
 	int sockfd;
 	struct sockaddr_in their_addr; // connector's address information
 	struct hostent *he;
-	int numbytes;
+	int numBytesSent = 0;
+    int contLin = 0;
 
 	if (argc != 3) {
 		fprintf(stderr,"usage: talker hostname message\n");
@@ -42,13 +45,18 @@ int main(int argc, char *argv[])
 	their_addr.sin_addr = *((struct in_addr *)he->h_addr);
 	memset(&(their_addr.sin_zero), '\0', 8);  // zero the rest of the struct
 
-	if ((numbytes = sendto(sockfd, argv[2], strlen(argv[2]), 0,
-			 (struct sockaddr *)&their_addr, sizeof(struct sockaddr))) == -1) {
-		perror("sendto");
-		exit(1);
-	}
+    while(fgets(buf, MAXDATASIZE, stdin) != NULL){
+    }
+    rewind(stdin);
+    
+    while(fgets(buf, MAXDATASIZE, stdin) != NULL)
+    {
+        numBytesSent += sendto(sockfd, buf, strlen(buf), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+        contLin++;
+        printf("%s", buf);
+    }
 
-	printf("sent %d bytes to %s\n", numbytes, inet_ntoa(their_addr.sin_addr));
+	//printf("sent %d bytes to %s\n", numbytes, inet_ntoa(their_addr.sin_addr));
 
 	close(sockfd);
 
