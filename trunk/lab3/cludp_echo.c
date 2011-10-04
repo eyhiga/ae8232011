@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
         printf("%s", bufRcv);
     }
 
-    //sendto(sockfd, "", 0, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+    sendto(sockfd, "", 0, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
 
     fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
     fprintf(stderr, "Linhas enviadas: %d\n", contLin);
