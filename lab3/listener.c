@@ -14,7 +14,7 @@
 
 #define MYPORT 4950	// the port users will be connecting to
 
-#define MAXBUFLEN 500
+#define MAXBUFLEN 100
 
 int main(void)
 {
@@ -40,33 +40,13 @@ int main(void)
 		perror("bind");
 		exit(1);
 	}
-	
-	addr_len = sizeof(struct sockaddr);
-	while(true)
-	{
-		if(!fork())
-		{
-			int contChars = 0;
-			int contLin = 0;
-			while((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
-			{
-				contChars += numBytes;
-				contLin++;
-				
-				sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
-				
-			}
-			fprintf(stderr, "Caracteres recebidos: %d\n", contChars);
-			fprintf(stderr, "Linhas recebidas: %d\n", contLin);
-		
-			/*if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
-				(struct sockaddr *)&their_addr, &addr_len)) == -1) {
-				perror("recvfrom");
-				exit(1);
-			}*/
-		}
-	}
 
+	addr_len = sizeof(struct sockaddr);
+	if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
+		(struct sockaddr *)&their_addr, &addr_len)) == -1) {
+		perror("recvfrom");
+		exit(1);
+	}
 
 	printf("got packet from %s\n",inet_ntoa(their_addr.sin_addr));
 	printf("packet is %d bytes long\n",numbytes);
