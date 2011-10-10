@@ -24,56 +24,50 @@ int main(void)
 	socklen_t addr_len;
 	int numBytesSent = 0;
 	int numBytesRcv = 0;
+    int contChars = 0;
+    int contLin = 0;
 	char buf[MAXBUFLEN];
 
-	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
-		perror("socket");
-		exit(1);
-	}
+    
+	while(1)
+	{
+        if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+            perror("socket");
+            exit(1);
+        }
 
-	my_addr.sin_family = AF_INET;		 // host byte order
-	my_addr.sin_port = htons(MYPORT);	 // short, network byte order
-	my_addr.sin_addr.s_addr = INADDR_ANY; // automatically fill with my IP
-	memset(&(my_addr.sin_zero), '\0', 8); // zero the rest of the struct
+        my_addr.sin_family = AF_INET;        // host byte order
+        my_addr.sin_port = htons(MYPORT);    // short, network byte order
+        my_addr.sin_addr.s_addr = INADDR_ANY; // automatically fill with my IP
+        memset(&(my_addr.sin_zero), '\0', 8); // zero the rest of the struct
 
-	if (bind(sockfd, (struct sockaddr *)&my_addr,
-		sizeof(struct sockaddr)) == -1) {
-		perror("bind");
-		exit(1);
-	}
-	
-	addr_len = sizeof(struct sockaddr);
-	/*while(1)
-	{*/
-		/*if(!fork())
-		{*/
-			int contChars = 0;
-			int contLin = 0;
-			while((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
-			{
-			    buf[numBytesRcv] = '\0';
-			    printf("%s", buf);
-			    //printf("got packet from %s\n",inet_ntoa(their_addr.sin_addr));
-	            //printf("packet is %d bytes long\n",numBytesRcv);
-				contChars += numBytesRcv;
-				contLin++;
+        if (bind(sockfd, (struct sockaddr *)&my_addr,
+            sizeof(struct sockaddr)) == -1) {
+            perror("bind");
+            exit(1);
+        }   
+        addr_len = sizeof(struct sockaddr);
+        
+		while((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
+		{
+		    buf[numBytesRcv] = '\0';
+			contChars += numBytesRcv;
+			contLin++;
+			
+			numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
 				
-				numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
-				
-			}
-			fprintf(stderr, "Caracteres recebidos: %d\n", contChars);
-			fprintf(stderr, "Linhas recebidas: %d\n", contLin);
-			fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
+		}
+		fprintf(stderr, "Caracteres recebidos: %d\n", contChars);
+		fprintf(stderr, "Linhas recebidas: %d\n", contLin);
+		fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
 		
-			/*if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
-				(struct sockaddr *)&their_addr, &addr_len)) == -1) {
-				perror("recvfrom");
-				exit(1);
-			}*/
-		//}
-		close(sockfd);
-        //while(waitpid(-1, NULL, WNOHANG) > 0);
-	//}
+		/*if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
+			(struct sockaddr *)&their_addr, &addr_len)) == -1) {
+			perror("recvfrom");
+			exit(1);
+		}*/
+        close(sockfd);
+	}
 
 	return 0;
 }
