@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
 	struct sockaddr_in their_addr; // connector's address information
 	struct hostent *he;
 	int numBytesSent = 0;
+    int numBytesRcv = 0;
     int contLin = 0;
     char bufRcv[MAXBUFLEN];
     char bufSent[MAXBUFLEN];
@@ -58,8 +59,8 @@ int main(int argc, char *argv[])
     {
         numBytesSent += sendto(sockfd, bufSent, strlen(bufSent), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
         contLin++;
-        //printf("%s", bufSent);
-        recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
+        numBytesRcv = recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
+        bufRcv[numBytesRcv] = '\0';
         printf("%s", bufRcv);
     }
 
