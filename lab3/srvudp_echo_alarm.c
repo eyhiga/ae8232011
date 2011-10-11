@@ -65,21 +65,21 @@ int main(void)
 
         alarm (1);
 
-		while(
-            ((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
-            && (keep_going))
+		while(keep_going)
 		{
-            if()
-            //numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
-            alarm (1);
+            if((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
+            {
+                //numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
+                alarm (1);
 
-		    buf[numBytesRcv] = '\0';
-			contChars += numBytesRcv;
-			contLin++;
+		        buf[numBytesRcv] = '\0';
+			    contChars += numBytesRcv;
+			    contLin++;
 
-            printf("%s", buf);
+                printf("%s", buf);
 
-			numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+			    numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+            }
 
 		}
 
