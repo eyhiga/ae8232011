@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     int numBytesRcv = 0;
     int numBytesRcvAux = 0;
     int contLin = 0;
-    //char bufRcv[MAXBUFLEN];
+    char bufRcv[MAXBUFLEN];
     char bufSent[MAXBUFLEN];
     socklen_t addr_len;
 
