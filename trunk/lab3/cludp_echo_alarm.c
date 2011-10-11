@@ -23,6 +23,7 @@ volatile sig_atomic_t keep_going = 1;
 
 void catch_alarm (int sig)
 {
+    printf("Catch");
     keep_going = 0;
     signal (sig, catch_alarm);
 }
@@ -76,19 +77,21 @@ int main(int argc, char *argv[])
 
     alarm (1);
 
-    while((fgets(bufSent, MAXBUFLEN, stdin) != NULL) && (keep_going))
+    while(keep_going)
     {
-        //fgets(bufSent, MAXBUFLEN, stdin)
-        alarm (1);
+        if((fgets(bufSent, MAXBUFLEN, stdin) != NULL))
+        {
+            alarm (1);
 
-        numBytesSent += sendto(sockfd, bufSent, strlen(bufSent), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
-        contLin++;
+            numBytesSent += sendto(sockfd, bufSent, strlen(bufSent), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+            contLin++;
 
-        numBytesRcvAux = recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
-        bufRcv[numBytesRcvAux] = '\0';
-        numBytesRcv += numBytesRcvAux;
+            numBytesRcvAux = recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
+            bufRcv[numBytesRcvAux] = '\0';
+            numBytesRcv += numBytesRcvAux;
 
-        printf("%s", bufRcv);
+            printf("%s", bufRcv);
+        }
     }
 
     sendto(sockfd, "", 0, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
