@@ -74,8 +74,9 @@ int main(int argc, char *argv[])
 
     signal(SIGALRM, catch_alarm);
 
-    while((fgets(bufSent, MAXBUFLEN, stdin) != NULL) && (keep_going))
+    while(/*(fgets(bufSent, MAXBUFLEN, stdin) != NULL) &&*/ (keep_going))
     {
+        fgets(bufSent, MAXBUFLEN, stdin)
         alarm (1);
 
         numBytesSent += sendto(sockfd, bufSent, strlen(bufSent), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
