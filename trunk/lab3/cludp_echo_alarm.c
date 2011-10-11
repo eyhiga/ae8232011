@@ -71,8 +71,9 @@ int main(int argc, char *argv[])
 
     start = times(&inicio); /* Inicio da contagem de tempo */
 
-
     signal(SIGALRM, catch_alarm);
+
+    alarm (1)
 
     while((fgets(bufSent, MAXBUFLEN, stdin) != NULL) && (keep_going))
     {
