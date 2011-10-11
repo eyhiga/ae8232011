@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -39,7 +40,7 @@ int main(int argc, char *argv[])
     int numBytesRcv = 0;
     int numBytesRcvAux = 0;
     int contLin = 0;
-    char bufRcv[MAXBUFLEN];
+    //char bufRcv[MAXBUFLEN];
     char bufSent[MAXBUFLEN];
     socklen_t addr_len;
 
@@ -73,7 +74,7 @@ int main(int argc, char *argv[])
 
     signal(SIGALRM, catch_alarm);
 
-    alarm (1)
+    alarm (1);
 
     while((fgets(bufSent, MAXBUFLEN, stdin) != NULL) && (keep_going))
     {
