@@ -28,9 +28,13 @@ int main(void)
     int contLin = 0;
 	char buf[MAXBUFLEN];
 
-    
+
 	while(1)
 	{
+        contChars = 0;
+        contLin = 0;
+        numBytesSent = 0;
+
         if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
             perror("socket");
             exit(1);
@@ -45,22 +49,24 @@ int main(void)
             sizeof(struct sockaddr)) == -1) {
             perror("bind");
             exit(1);
-        }   
+        }
         addr_len = sizeof(struct sockaddr);
-        
+
 		while((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
 		{
+            printf("%d;\n", numBytesRcv);
 		    buf[numBytesRcv] = '\0';
 			contChars += numBytesRcv;
 			contLin++;
-			
+			//printf("%s", buf);
 			numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
-				
+
 		}
+		//sendto(sockfd, "", 0, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
 		fprintf(stderr, "Caracteres recebidos: %d\n", contChars);
 		fprintf(stderr, "Linhas recebidas: %d\n", contLin);
 		fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
-		
+
 		/*if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
 			(struct sockaddr *)&their_addr, &addr_len)) == -1) {
 			perror("recvfrom");

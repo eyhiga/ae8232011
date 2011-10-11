@@ -12,6 +12,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <sys/times.h>
 
 #define SERVERPORT 4950	// the port users will be connecting to
 
@@ -19,11 +20,15 @@
 
 int main(int argc, char *argv[])
 {
+    float telapsed;
+    clock_t start, end;
+    struct tms inicio, fim;
 	int sockfd;
 	struct sockaddr_in their_addr; // connector's address information
 	struct hostent *he;
 	int numBytesSent = 0;
     int numBytesRcv = 0;
+    int numBytesRcvAux = 0;
     int contLin = 0;
     char bufRcv[MAXBUFLEN];
     char bufSent[MAXBUFLEN];
@@ -50,25 +55,34 @@ int main(int argc, char *argv[])
 	memset(&(their_addr.sin_zero), '\0', 8);  // zero the rest of the struct
 
     addr_len = sizeof(struct sockaddr);
-    
+
     while(fgets(bufSent, MAXBUFLEN, stdin) != NULL){
     }
     rewind(stdin);
-    
+
+    start = times(&inicio); /* Inicio da contagem de tempo */
+
     while(fgets(bufSent, MAXBUFLEN, stdin) != NULL)
     {
         numBytesSent += sendto(sockfd, bufSent, strlen(bufSent), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
         contLin++;
-        numBytesRcv = recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
-        bufRcv[numBytesRcv] = '\0';
-        printf("%s", bufRcv);
+        numBytesRcvAux = recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
+        bufRcv[numBytesRcvAux] = '\0';
+        printf("%d;\n", numBytesRcvAux);
+        numBytesRcv += numBytesRcvAux;
+        //printf("%s", bufRcv);
     }
 
     sendto(sockfd, "", 0, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
 
+    end = times(&fim);
+    telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
+
+    fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
     fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
     fprintf(stderr, "Linhas enviadas: %d\n", contLin);
-    
+    fprintf(stderr, "Caracteres recebidos: %d\n", numBytesRcv);
+
     //printf("sent %d bytes to %s\n", numbytes, inet_ntoa(thenumBytesSentir_addr.sin_addr));
 
 	close(sockfd);
