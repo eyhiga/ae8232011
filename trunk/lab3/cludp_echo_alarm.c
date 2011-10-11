@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
 	int sockfd;
 	struct sockaddr_in their_addr; // connector's address information
 	struct hostent *he;
+
 	int numBytesSent = 0;
     int numBytesRcv = 0;
     int numBytesRcvAux = 0;
@@ -39,6 +40,7 @@ int main(int argc, char *argv[])
     char bufRcv[MAXBUFLEN];
     char bufSent[MAXBUFLEN];
     socklen_t addr_len;
+
     volatile sig_atomic_t keep_going = 1;
 
 	if (argc != 2) {
