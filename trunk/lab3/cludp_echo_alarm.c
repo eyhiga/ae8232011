@@ -79,8 +79,8 @@ int main(int argc, char *argv[])
 
     signal(SIGALRM, catch_alarm);
 
-    count = 1
-    keep_going = 1
+    cont = 1;
+    keep_going = 1;
     while(keep_going && cont)
     {
         if((fgets(bufSent, MAXBUFLEN, stdin) != NULL))
