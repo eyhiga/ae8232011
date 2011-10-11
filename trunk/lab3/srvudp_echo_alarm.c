@@ -18,17 +18,19 @@
 #define MAXBUFLEN 500
 
 volatile sig_atomic_t keep_going = 1;
+int sockfd;
 
-void catch_alarm (int sig)
+void catch_alarm(int sig)
 {
     keep_going = 0;
     signal (sig, catch_alarm);
+    close(sockfd);
     fprintf(stderr, "TIMEOUT\n");
 }
 
 int main(void)
 {
-	int sockfd;
+    
 	struct sockaddr_in my_addr;	// my address information
 	struct sockaddr_in their_addr; // connector's address information
 	socklen_t addr_len;
@@ -71,7 +73,7 @@ int main(void)
         
 		while(keep_going && cont)
         {
-            if((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0 && keep_going)
+            if(keep_going && (numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
             {
                 //numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
                 alarm(5);
@@ -90,6 +92,7 @@ int main(void)
 
 		}
         alarm(0);
+        
         close(sockfd);
         
 		fprintf(stderr, "Caracteres recebidos: %d\n", contChars);
