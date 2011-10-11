@@ -37,6 +37,8 @@ int main(int argc, char *argv[])
 	struct sockaddr_in their_addr; // connector's address information
 	struct hostent *he;
 
+    int cont = 1;
+
 	int numBytesSent = 0;
     int numBytesRcv = 0;
     int numBytesRcvAux = 0;
@@ -77,7 +79,7 @@ int main(int argc, char *argv[])
 
     alarm (1);
 
-    while(keep_going)
+    while(keep_going && cont)
     {
         if((fgets(bufSent, MAXBUFLEN, stdin) != NULL))
         {
@@ -91,6 +93,10 @@ int main(int argc, char *argv[])
             numBytesRcv += numBytesRcvAux;
 
             printf("%s", bufRcv);
+        }
+        else
+        {
+            cont = 0;
         }
     }
 
