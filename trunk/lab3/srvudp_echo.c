@@ -68,11 +68,6 @@ int main(void)
 		fprintf(stderr, "Linhas recebidas: %d\n", contLin);
 		fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
 
-		/*if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
-			(struct sockaddr *)&their_addr, &addr_len)) == -1) {
-			perror("recvfrom");
-			exit(1);
-		}*/
         close(sockfd);
 	}
 

@@ -23,6 +23,7 @@ void catch_alarm (int sig)
 {
     keep_going = 0;
     signal (sig, catch_alarm);
+    fprintf(stderr, "TIMEOUT\n");
 }
 
 int main(void)
@@ -39,6 +40,8 @@ int main(void)
     int contChars = 0;
     int contLin = 0;
 	char buf[MAXBUFLEN];
+    int counter = 0;
+    signal(SIGALRM, catch_alarm);
 
 	while(1)
 	{
@@ -63,24 +66,22 @@ int main(void)
         }
         addr_len = sizeof(struct sockaddr);
 
-        signal(SIGALRM, catch_alarm);
-
-        alarm (1);
-
+        cont = 1;
+        keep_going = 1;
+        
 		while(keep_going && cont)
-		{
-            if((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
+        {
+            if((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0 && keep_going)
             {
                 //numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
-                alarm (1);
-
+                alarm(5);
 		        buf[numBytesRcv] = '\0';
 			    contChars += numBytesRcv;
 			    contLin++;
 
                 printf("%s", buf);
 
-			    //numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+			    numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
             }
             else
             {
@@ -88,9 +89,9 @@ int main(void)
             }
 
 		}
-
+        alarm(0);
         close(sockfd);
-
+        
 		fprintf(stderr, "Caracteres recebidos: %d\n", contChars);
 		fprintf(stderr, "Linhas recebidas: %d\n", contLin);
 		fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
