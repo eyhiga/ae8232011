@@ -62,13 +62,14 @@ int main(int argc, char *argv[])
 
     start = times(&inicio); /* Inicio da contagem de tempo */
 
+    int cont=1;
     while(fgets(bufSent, MAXBUFLEN, stdin) != NULL)
     {
         numBytesSent += sendto(sockfd, bufSent, strlen(bufSent), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
         contLin++;
         numBytesRcvAux = recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
         bufRcv[numBytesRcvAux] = '\0';
-        printf("%d;\n", numBytesRcvAux);
+        printf("%d;\n", cont++);
         numBytesRcv += numBytesRcvAux;
         //printf("%s", bufRcv);
     }

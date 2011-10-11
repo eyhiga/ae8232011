@@ -52,9 +52,10 @@ int main(void)
         }
         addr_len = sizeof(struct sockaddr);
 
+        int cont=1;
 		while((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
 		{
-            printf("%d;\n", numBytesRcv);
+            printf("%d;\n", cont++);
 		    buf[numBytesRcv] = '\0';
 			contChars += numBytesRcv;
 			contLin++;
