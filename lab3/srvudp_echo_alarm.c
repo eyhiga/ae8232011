@@ -32,6 +32,8 @@ int main(void)
 	struct sockaddr_in their_addr; // connector's address information
 	socklen_t addr_len;
 
+    int cont = 1;
+
 	int numBytesSent = 0;
 	int numBytesRcv = 0;
     int contChars = 0;
@@ -65,7 +67,7 @@ int main(void)
 
         alarm (1);
 
-		while(keep_going)
+		while(keep_going && cont)
 		{
             if((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
             {
@@ -78,7 +80,11 @@ int main(void)
 
                 printf("%s", buf);
 
-			    numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+			    //numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+            }
+            else
+            {
+                cont = 0;
             }
 
 		}
