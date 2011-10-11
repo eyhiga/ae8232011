@@ -77,17 +77,17 @@ int main(int argc, char *argv[])
 
     signal(SIGALRM, catch_alarm);
 
-    alarm (1);
-
+    count = 1
+    keep_going = 1
     while(keep_going && cont)
     {
         if((fgets(bufSent, MAXBUFLEN, stdin) != NULL))
         {
-            alarm (1);
 
             numBytesSent += sendto(sockfd, bufSent, strlen(bufSent), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
             contLin++;
-
+            
+            alarm(5);
             numBytesRcvAux = recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
             bufRcv[numBytesRcvAux] = '\0';
             numBytesRcv += numBytesRcvAux;
