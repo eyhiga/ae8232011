@@ -20,12 +20,15 @@
 #define MAXBUFLEN 500
 
 volatile sig_atomic_t keep_going = 1;
+int sockfd;
+
 
 void catch_alarm (int sig)
 {
     printf("Catch");
     keep_going = 0;
     signal (sig, catch_alarm);
+    close(sockfd);
 }
 
 int main(int argc, char *argv[])
@@ -33,7 +36,6 @@ int main(int argc, char *argv[])
     float telapsed;
     clock_t start, end;
     struct tms inicio, fim;
-	int sockfd;
 	struct sockaddr_in their_addr; // connector's address information
 	struct hostent *he;
 
