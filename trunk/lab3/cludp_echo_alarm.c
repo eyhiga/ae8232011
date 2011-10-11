@@ -73,9 +73,10 @@ int main(int argc, char *argv[])
 
     //int cont=1;
     signal(SIGALRM, catch_alarm);
-    alarm (2);
+    //alarm (2);
     while((fgets(bufSent, MAXBUFLEN, stdin) != NULL) && (keep_going))
     {
+        alarm (2);
         numBytesSent += sendto(sockfd, bufSent, strlen(bufSent), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
         contLin++;
         numBytesRcvAux = recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
