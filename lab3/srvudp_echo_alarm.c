@@ -64,9 +64,10 @@ int main(void)
         signal(SIGALRM, catch_alarm);
 
 		while(
-            ((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
-            && (keep_going))
+            /*((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
+            &&*/ (keep_going))
 		{
+            numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)
             alarm (1);
 
 		    buf[numBytesRcv] = '\0';
