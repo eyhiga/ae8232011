@@ -18,6 +18,8 @@
 
 #define MAXBUFLEN 500
 
+volatile sig_atomic_t keep_going = 1;
+
 void catch_alarm (int sig)
 {
     keep_going = 0;
@@ -40,8 +42,6 @@ int main(int argc, char *argv[])
     char bufRcv[MAXBUFLEN];
     char bufSent[MAXBUFLEN];
     socklen_t addr_len;
-
-    volatile sig_atomic_t keep_going = 1;
 
 	if (argc != 2) {
 		fprintf(stderr,"usage: talker hostname message\n");
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
     start = times(&inicio); /* Inicio da contagem de tempo */
 
-    int cont=1;
+    //int cont=1;
     signal(SIGALRM, catch_alarm);
     alarm (2);
     while((fgets(bufSent, MAXBUFLEN, stdin) != NULL) && (keep_going))

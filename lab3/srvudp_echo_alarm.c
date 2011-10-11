@@ -17,6 +17,8 @@
 
 #define MAXBUFLEN 500
 
+volatile sig_atomic_t keep_going = 1;
+
 void catch_alarm (int sig)
 {
     keep_going = 0;
@@ -35,8 +37,6 @@ int main(void)
     int contChars = 0;
     int contLin = 0;
 	char buf[MAXBUFLEN];
-
-    volatile sig_atomic_t keep_going = 1;
 
 	while(1)
 	{
@@ -61,9 +61,10 @@ int main(void)
         }
         addr_len = sizeof(struct sockaddr);
 
-        int cont=1;
+        //int cont=1;
         signal(SIGALRM, catch_alarm);
         alarm (2);
+
 		while(((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0) && (keep_going))
 		{
             //printf("%d;\n", cont++);
