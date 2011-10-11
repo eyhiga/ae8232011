@@ -63,10 +63,11 @@ int main(void)
 
         //int cont=1;
         signal(SIGALRM, catch_alarm);
-        alarm (2);
+        //alarm (2);
 
 		while(((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0) && (keep_going))
 		{
+            alarm (2);
             //printf("%d;\n", cont++);
 		    buf[numBytesRcv] = '\0';
 			contChars += numBytesRcv;
