@@ -55,11 +55,11 @@ int main(void)
         int cont=1;
 		while((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
 		{
-            printf("%d;\n", cont++);
+            //printf("%d;\n", cont++);
 		    buf[numBytesRcv] = '\0';
 			contChars += numBytesRcv;
 			contLin++;
-			//printf("%s", buf);
+            printf("%s", buf);
 			numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
 
 		}

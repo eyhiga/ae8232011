@@ -69,9 +69,9 @@ int main(int argc, char *argv[])
         contLin++;
         numBytesRcvAux = recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
         bufRcv[numBytesRcvAux] = '\0';
-        printf("%d;\n", cont++);
+        //printf("%d;\n", cont++);
         numBytesRcv += numBytesRcvAux;
-        //printf("%s", bufRcv);
+        printf("%s", bufRcv);
     }
 
     sendto(sockfd, "", 0, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
