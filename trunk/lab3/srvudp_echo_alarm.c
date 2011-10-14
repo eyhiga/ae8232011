@@ -71,9 +71,9 @@ int main(void)
         cont = 1;
         keep_going = 1;
         
-		while(keep_going && cont)
+		while(cont)
         {
-            if(keep_going && (numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
+            if((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0 && keep_going)
             {
                 //numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
                 alarm(5);
