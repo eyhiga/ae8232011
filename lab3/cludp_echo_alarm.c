@@ -67,7 +67,6 @@ int main(int argc, char *argv[])
 	their_addr.sin_port = htons(SERVERPORT); // short, network byte order
 	their_addr.sin_addr = *((struct in_addr *)he->h_addr);
 	memset(&(their_addr.sin_zero), '\0', 8);  // zero the rest of the struct
-
     addr_len = sizeof(struct sockaddr);
 
     while(fgets(bufSent, MAXBUFLEN, stdin) != NULL){
@@ -75,14 +74,13 @@ int main(int argc, char *argv[])
     rewind(stdin);
 
     start = times(&inicio); /* Inicio da contagem de tempo */
-
     signal(SIGALRM, catch_alarm);
 
     cont = 1;
     keep_going = 1;
     while(cont)
     {
-        if((fgets(bufSent, MAXBUFLEN, stdin) != NULL) && keep_going)
+        if(keep_going && (fgets(bufSent, MAXBUFLEN, stdin) != NULL))
         {
 
             numBytesSent += sendto(sockfd, bufSent, strlen(bufSent), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
@@ -97,10 +95,7 @@ int main(int argc, char *argv[])
                 printf("%s", bufRcv);
             }
         }
-        else
-        {
-            cont = 0;
-        }
+        else cont = 0;
     }
 
     sendto(sockfd, "", 0, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
