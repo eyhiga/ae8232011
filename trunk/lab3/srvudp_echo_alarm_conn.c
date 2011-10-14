@@ -1,7 +1,3 @@
-/*
-** listener.c -- a datagram sockets "server" demo
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -13,7 +9,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define MYPORT 4950	// the port users will be connecting to
+#define MYPORT 4950
 
 #define MAXBUFLEN 500
 
@@ -31,8 +27,8 @@ void catch_alarm(int sig)
 int main(void)
 {
     
-	struct sockaddr_in my_addr;	// my address information
-	struct sockaddr_in their_addr; // connector's address information
+	struct sockaddr_in my_addr;	// Armazena a informacao local
+	struct sockaddr_in their_addr; // Armazena a informacao do servidor
 	socklen_t addr_len;
 
     int cont = 1;
@@ -75,7 +71,7 @@ int main(void)
         {
             if(keep_going && (numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
             {
-                //numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
+
                 alarm(5);
 		        buf[numBytesRcv] = '\0';
 			    contChars += numBytesRcv;

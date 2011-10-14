@@ -1,7 +1,3 @@
-/*
-** talker.c -- a datagram "client" demo
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -15,7 +11,7 @@
 #include <netdb.h>
 #include <sys/times.h>
 
-#define SERVERPORT 4950	// the port users will be connecting to
+#define SERVERPORT 4950
 
 #define MAXBUFLEN 500
 
@@ -35,7 +31,7 @@ int main(int argc, char *argv[])
     float telapsed;
     clock_t start, end;
     struct tms inicio, fim;
-	struct sockaddr_in their_addr; // connector's address information
+	struct sockaddr_in their_addr; // Armazena a informacao do servidor
 	struct hostent *he;
 
     int cont = 1;
@@ -53,7 +49,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	if ((he=gethostbyname(argv[1])) == NULL) {  // get the host info
+	if ((he=gethostbyname(argv[1])) == NULL) {  // Pega informacao do servidor
 		perror("gethostbyname");
 		exit(1);
 	}
@@ -107,8 +103,6 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
     fprintf(stderr, "Linhas enviadas: %d\n", contLin);
     fprintf(stderr, "Caracteres recebidos: %d\n", numBytesRcv);
-
-    //printf("sent %d bytes to %s\n", numbytes, inet_ntoa(thenumBytesSentir_addr.sin_addr));
 
 	close(sockfd);
 

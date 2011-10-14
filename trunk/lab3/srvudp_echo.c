@@ -1,7 +1,3 @@
-/*
-** listener.c -- a datagram sockets "server" demo
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -12,15 +8,15 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define MYPORT 4950	// the port users will be connecting to
+#define MYPORT 4950
 
 #define MAXBUFLEN 500
 
 int main(void)
 {
 	int sockfd;
-	struct sockaddr_in my_addr;	// my address information
-	struct sockaddr_in their_addr; // connector's address information
+	struct sockaddr_in my_addr;	// Armazena a informacao local
+	struct sockaddr_in their_addr; // Armazena a informacao do servidor
 	socklen_t addr_len;
 	int numBytesSent = 0;
 	int numBytesRcv = 0;
@@ -55,7 +51,7 @@ int main(void)
         int cont=1;
 		while((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
 		{
-            //printf("%d;\n", cont++);
+
 		    buf[numBytesRcv] = '\0';
 			contChars += numBytesRcv;
 			contLin++;
@@ -63,7 +59,7 @@ int main(void)
 			numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
 
 		}
-		//sendto(sockfd, "", 0, 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+
 		fprintf(stderr, "Caracteres recebidos: %d\n", contChars);
 		fprintf(stderr, "Linhas recebidas: %d\n", contLin);
 		fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
