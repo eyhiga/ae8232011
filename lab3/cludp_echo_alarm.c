@@ -25,7 +25,6 @@ int sockfd;
 
 void catch_alarm (int sig)
 {
-    printf("Catch");
     keep_going = 0;
     signal (sig, catch_alarm);
     close(sockfd);
@@ -81,9 +80,9 @@ int main(int argc, char *argv[])
 
     cont = 1;
     keep_going = 1;
-    while(keep_going && cont)
+    while(cont)
     {
-        if((fgets(bufSent, MAXBUFLEN, stdin) != NULL))
+        if((fgets(bufSent, MAXBUFLEN, stdin) != NULL) && keep_going)
         {
 
             numBytesSent += sendto(sockfd, bufSent, strlen(bufSent), 0,(struct sockaddr *)&their_addr, sizeof(struct sockaddr));
@@ -91,10 +90,12 @@ int main(int argc, char *argv[])
             
             alarm(5);
             numBytesRcvAux = recvfrom(sockfd, bufRcv, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
-            bufRcv[numBytesRcvAux] = '\0';
-            numBytesRcv += numBytesRcvAux;
+            if(keep_going){
+                bufRcv[numBytesRcvAux] = '\0';
+                numBytesRcv += numBytesRcvAux;
 
-            printf("%s", bufRcv);
+                printf("%s", bufRcv);
+            }
         }
         else
         {
