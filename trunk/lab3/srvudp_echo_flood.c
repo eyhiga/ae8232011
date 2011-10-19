@@ -18,7 +18,6 @@ int main(void)
 	struct sockaddr_in my_addr;	// Armazena a informacao local
 	struct sockaddr_in their_addr; // Armazena a informacao do servidor
 	socklen_t addr_len;
-	int numBytesSent = 0;
 	int numBytesRcv = 0;
     int contChars = 0;
     int contLin = 0;
@@ -29,7 +28,6 @@ int main(void)
 	{
         contChars = 0;
         contLin = 0;
-        numBytesSent = 0;
 
         if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
             perror("socket");
@@ -48,7 +46,6 @@ int main(void)
         }
         addr_len = sizeof(struct sockaddr);
 
-        int cont=1;
 		while((numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
 		{
 
@@ -56,13 +53,13 @@ int main(void)
 			contChars += numBytesRcv;
 			contLin++;
             printf("%s", buf);
-			numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+			//numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
 
 		}
 
 		fprintf(stderr, "Caracteres recebidos: %d\n", contChars);
 		fprintf(stderr, "Linhas recebidas: %d\n", contLin);
-		fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
+		//fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
 
         close(sockfd);
 	}
