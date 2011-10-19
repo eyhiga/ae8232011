@@ -19,6 +19,7 @@ int main(void)
 	struct sockaddr_in their_addr; // Armazena a informacao do servidor
 	socklen_t addr_len;
 	int numBytesRcv = 0;
+    int numBytesSent = 0;
     int contChars = 0;
     int contLin = 0;
 	char buf[MAXBUFLEN];
