@@ -38,7 +38,6 @@ int main(void)
     int contChars = 0;
     int contLin = 0;
 	char buf[MAXBUFLEN];
-    int counter = 0;
     signal(SIGALRM, catch_alarm);
 
 	while(1)
@@ -66,12 +65,25 @@ int main(void)
 
         cont = 1;
         keep_going = 1;
+
+        numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
+        buf[numBytesRcv] = '\0';
+        contChars += numBytesRcv;
+        contLin++;
+
+        printf("%s", buf);
+        
+        if (connect(sockfd, (struct sockaddr *)&their_addr, sizeof(struct sockaddr)) == -1) {
+            perror("connect");
+            exit(1);
+        }
+        
+        numBytesSent += send(sockfd, buf, strlen(buf), 0);
         
 		while(cont)
         {
-            if(keep_going && (numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
+            if(keep_going && (numBytesRcv = recv(sockfd, buf, MAXBUFLEN-1, 0) != 0))
             {
-
                 alarm(5);
 		        buf[numBytesRcv] = '\0';
 			    contChars += numBytesRcv;
@@ -79,7 +91,7 @@ int main(void)
 
                 printf("%s", buf);
 
-			    numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+			    numBytesSent += send(sockfd, buf, strlen(buf), 0);
             }
             else
             {
@@ -89,6 +101,8 @@ int main(void)
 		}
         alarm(0);
         
+        
+        connect(sockfd, AF_UNSPEC, sizeof(struct sockaddr));
         close(sockfd);
         
 		fprintf(stderr, "Caracteres recebidos: %d\n", contChars);
