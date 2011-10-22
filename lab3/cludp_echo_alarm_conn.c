@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
 
-    fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
+    fprintf(stderr, "Tempo total: %4.5f s\n", telapsed);
     fprintf(stderr, "Caracteres enviados: %d\n", numBytesSent);
     fprintf(stderr, "Linhas enviadas: %d\n", contLin);
     fprintf(stderr, "Caracteres recebidos: %d\n", numBytesRcv);
