@@ -67,24 +67,27 @@ int main(void)
         cont = 1;
         keep_going = 1;
         
-		while(cont)
+        numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
+        contLin++;
+
+        if(connect(sockfd, (struct sockaddr *)&their_addr, sizeof(struct sockaddr)) == -1)
         {
-            if(keep_going && (numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) != 0)
-            {
+            perror("connect");
+            exit(1);
+        }
 
-                alarm(5);
-		        buf[numBytesRcv] = '\0';
-			    contChars += numBytesRcv;
-			    contLin++;
+        send(sockfd, buf, strlen(buf), 0);
 
-                printf("%s", buf);
+		while(keep_going && (numBytesRcv = recv(sockfd, buf, MAXBUFLEN-1, 0) != 0))
+        {
+            alarm(5);
+            buf[numBytesRcv] = '\0';
+            contChars += numBytesRcv;
+            contLin++;
 
-			    numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
-            }
-            else
-            {
-                cont = 0;
-            }
+            printf("%s", buf);
+
+            numBytesSent += send(sockfd, buf, strlen(buf), 0);
 
 		}
         alarm(0);
