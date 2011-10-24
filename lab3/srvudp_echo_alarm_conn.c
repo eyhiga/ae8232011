@@ -11,7 +11,7 @@
 
 #define MYPORT 4950
 
-#define MAXBUFLEN 500
+#define MAXBUFLEN 200
 
 volatile sig_atomic_t keep_going = 1;
 int sockfd;
@@ -38,7 +38,6 @@ int main(void)
     int contChars = 0;
     int contLin = 0;
 	char buf[MAXBUFLEN];
-    int counter = 0;
     signal(SIGALRM, catch_alarm);
 
 	while(1)
@@ -57,8 +56,7 @@ int main(void)
         my_addr.sin_addr.s_addr = INADDR_ANY; // automatically fill with my IP
         memset(&(my_addr.sin_zero), '\0', 8); // zero the rest of the struct
 
-        if (bind(sockfd, (struct sockaddr *)&my_addr,
-            sizeof(struct sockaddr)) == -1) {
+        if (bind(sockfd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr)) == -1) {
             perror("bind");
             exit(1);
         }
@@ -68,19 +66,22 @@ int main(void)
         keep_going = 1;
         
         numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
+        numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, addr_len);
+        contChars += numBytesRcv;
         contLin++;
 
-        if(connect(sockfd, (struct sockaddr *)&their_addr, sizeof(struct sockaddr)) == -1)
+        buf[numBytesRcv] = '\0';
+        fprintf(stderr, "%s", buf);
+
+        if(connect(sockfd, (struct sockaddr *)&their_addr, addr_len) == -1)
         {
             perror("connect");
             exit(1);
         }
 
-        send(sockfd, buf, strlen(buf), 0);
-
-		while(keep_going && (numBytesRcv = recv(sockfd, buf, MAXBUFLEN-1, 0) != 0))
+		while(keep_going && (numBytesRcv = recv(sockfd, buf, MAXBUFLEN-1, 0)) != 0)
         {
-            alarm(5);
+            alarm(0);
             buf[numBytesRcv] = '\0';
             contChars += numBytesRcv;
             contLin++;
@@ -88,7 +89,6 @@ int main(void)
             printf("%s", buf);
 
             numBytesSent += send(sockfd, buf, strlen(buf), 0);
-
 		}
         alarm(0);
         
