@@ -75,6 +75,7 @@ int main(void)
             perror("connect");
             exit(1);
         }
+        numBytesSent += send(sockfd, buf, strlen(buf), 0);
 
 		while(keep_going && (numBytesRcv = recv(sockfd, buf, MAXBUFLEN-1, 0)) != 0)
         {
