@@ -27,21 +27,19 @@ void catch_alarm(int sig)
 int main(void)
 {
     
-	struct sockaddr_in my_addr;	// Armazena a informacao local
-	struct sockaddr_in their_addr; // Armazena a informacao do servidor
-	socklen_t addr_len;
+    struct sockaddr_in my_addr;	// Armazena a informacao local
+    struct sockaddr_in their_addr; // Armazena a informacao do servidor
+    socklen_t addr_len;
 
     int cont = 1;
-
-	int numBytesSent = 0;
-	int numBytesRcv = 0;
+    int numBytesSent = 0;
+    int numBytesRcv = 0;
     int contChars = 0;
     int contLin = 0;
-	char buf[MAXBUFLEN];
+    char buf[MAXBUFLEN];
     signal(SIGALRM, catch_alarm);
 
-	while(1)
-	{
+    while(1){
         contChars = 0;
         contLin = 0;
         numBytesSent = 0;
@@ -66,7 +64,6 @@ int main(void)
         keep_going = 1;
         
         numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
-        numBytesSent += sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&their_addr, addr_len);
         contChars += numBytesRcv;
         contLin++;
 
@@ -81,7 +78,8 @@ int main(void)
 
 		while(keep_going && (numBytesRcv = recv(sockfd, buf, MAXBUFLEN-1, 0)) != 0)
         {
-            alarm(0);
+            
+            alarm(5);
             buf[numBytesRcv] = '\0';
             contChars += numBytesRcv;
             contLin++;
@@ -89,6 +87,7 @@ int main(void)
             printf("%s", buf);
 
             numBytesSent += send(sockfd, buf, strlen(buf), 0);
+
 		}
         alarm(0);
         
