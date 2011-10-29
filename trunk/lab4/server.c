@@ -21,6 +21,12 @@
 
 #define MAXLINE 500   /* Tamanho da linha recebida */
 
+#define MAXFD 64
+
+void mysyslog(char *progname);
+
+void daemon_init(const char *pname);
+
 int main()
 {
     int i=0;
@@ -113,4 +119,52 @@ int main()
 
 }
 
+void daemon_init(const char *pname)
+{
+    int i;
+    pid_t pid;
+    
+    if((pid = fork()) != 0)
+    {
+        exit(0);
+    }
+    
+    setsid();
+    signal(SIGHUP, SIG_IGN);
+    
+    if((pid = fork()) != 0)
+    {
+        exit(0);
+    }
+    
+    chdir("/tmp");
+    
+    umask(0);
+    
+    for(i = 0; i < MAXFD, i++)
+    {
+        close(i);
+    }
+    
+    openlog(pname, LOG_PID, 0);
+    
+}
 
+void mysyslog(char *progname)
+{
+    FILE *fp;
+    char buf[64], *ctime();
+    time_t time(), now;
+    (void) time(&now);
+    
+    sprintf(buf, "%s", ctime(now));
+    
+    if((fp=fopen("ERROR.LOG", "a")) == 0)
+    {
+        exit(1);
+    }
+    
+    fprint(fp, "%s %s\n", progname, buf);
+    fclose(fp);
+    
+}
