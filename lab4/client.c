@@ -67,6 +67,8 @@ int main(int argc, char *argv[])
     /* abre ambos os descritores de arquivo no socket a ser usado para o envio e recebimento */
     rsock = fdopen(sockfd, "r");
     wsock = fdopen(sockfd, "w");
+    setvbuf(rsock, NULL, _IOLBF, 0)
+    setvbuf(wsock, NULL, _IOLBF, 0)
 
     their_addr.sin_family = AF_INET;       /* Ordem dos bytes do host */
     their_addr.sin_port = htons(PORT);     /* Ordem dos bytes da rede */
@@ -92,7 +94,6 @@ int main(int argc, char *argv[])
         while(fgets(buf, MAXDATASIZE, stdin) != NULL)
         {
             success = fputs(buf, wsock);
-            fflush(wsock);
 
             if(success > 0)
             {
@@ -128,7 +129,6 @@ int main(int argc, char *argv[])
         numLinesRcv++;
         printf("%s", rcv);
         rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-        fflush(rsock);
     }
 
     end = times(&fim);
