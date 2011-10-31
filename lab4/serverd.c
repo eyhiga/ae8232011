@@ -23,12 +23,47 @@
 
 #define MAXFD 64
 
-void mysyslog(char *progname);
+void mysyslog(char *progname, int){
+ 
+    FILE *fp;
+    char buf[64], *ctime();
+    time_t time(), now;
+    (void) time(&now);
+    
+    sprintf(buf, "%s", ctime(now));
+    
+    if((fp=fopen("ERROR.LOG", "a")) == 0)
+    {
+        exit(1);
+    }
+    
+    fprint(fp, "%s %s\n", progname, buf);
+    fclose(fp);
+    
+}
 
-void daemon_init(const char *pname);
+void daemon_init(const char *progname){
+    int i;
+    pid_t pid;
+    
+    if((pid = fork()) != 0) exit(0);
+        
+    setsid();
+    signal(SIGHUP, SIG_IGN);
+    
+    if( (pid = fork()) != 0) exit(0);
+    
+    chdir("/tmp");
+    umask(0);
+    
+    for(i=0;i<MAX_FD;i++) close(i);
+    
+    openlog(progname, LOG_PID, 0);
+    
+}
 
-int main()
-{
+int main(){
+    
     int i=0;
     int sockfd, new_fd;  /* sockfd espera por conexoes, new_fd serve para o envio de dados */
     char line[MAXLINE];
@@ -36,6 +71,8 @@ int main()
     struct sockaddr_in their_addr; /* informacoes do cliente  */
     unsigned int sin_size;
     int yes=1;
+    
+    daemon_init(argv[0]);
     
     /* Descritores de arquivo que serão abertos no socket */
     FILE *rsock, *wsock;
@@ -117,54 +154,4 @@ int main()
     }
     return 0;
 
-}
-
-void daemon_init(const char *pname)
-{
-    int i;
-    pid_t pid;
-    
-    if((pid = fork()) != 0)
-    {
-        exit(0);
-    }
-    
-    setsid();
-    signal(SIGHUP, SIG_IGN);
-    
-    if((pid = fork()) != 0)
-    {
-        exit(0);
-    }
-    
-    chdir("/tmp");
-    
-    umask(0);
-    
-    for(i = 0; i < MAXFD, i++)
-    {
-        close(i);
-    }
-    
-    openlog(pname, LOG_PID, 0);
-    
-}
-
-void mysyslog(char *progname)
-{
-    FILE *fp;
-    char buf[64], *ctime();
-    time_t time(), now;
-    (void) time(&now);
-    
-    sprintf(buf, "%s", ctime(now));
-    
-    if((fp=fopen("ERROR.LOG", "a")) == 0)
-    {
-        exit(1);
-    }
-    
-    fprint(fp, "%s %s\n", progname, buf);
-    fclose(fp);
-    
 }
