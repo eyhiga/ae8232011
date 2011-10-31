@@ -14,6 +14,9 @@
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <arpa/inet.h>
+#include <syslog.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #define MYPORT 9034    /* porta usada para a conexao */
 
@@ -23,7 +26,7 @@
 
 #define MAXFD 64
 
-void mysyslog(char *progname, int){
+void mysyslog(char *progname){
  
     FILE *fp;
     char buf[64], *ctime();
@@ -37,7 +40,7 @@ void mysyslog(char *progname, int){
         exit(1);
     }
     
-    fprint(fp, "%s %s\n", progname, buf);
+    fprintf(fp, "%s %s\n", progname, buf);
     fclose(fp);
     
 }
@@ -56,13 +59,13 @@ void daemon_init(const char *progname){
     chdir("/tmp");
     umask(0);
     
-    for(i=0;i<MAX_FD;i++) close(i);
+    for(i=0;i<MAXFD;i++) close(i);
     
     openlog(progname, LOG_PID, 0);
     
 }
 
-int main(){
+int main(int argc, char *argv[]){
     
     int i=0;
     int sockfd, new_fd;  /* sockfd espera por conexoes, new_fd serve para o envio de dados */
@@ -135,7 +138,7 @@ int main(){
             while ((fgets(line, MAXLINE, rsock)) != NULL) {
                 line[strlen(line)] = '\0';
                 fflush(rsock);
-                printf("Linha Recebida: %s", line);
+                fprintf(stderr, "Linha Recebida: %s", line);
                 fputs(line, wsock);
                 fflush(wsock);
             }

@@ -12,6 +12,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <sys/times.h>
 #include <netinet/in.h>
 
@@ -132,7 +133,7 @@ int main(int argc, char *argv[])
 
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
-    
+    wait(NULL);
     /* Estatisticas de recebimento do processo pai */
     fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
     fprintf(stderr, "Linhas recebidas: %d\n", numLinesRcv);
