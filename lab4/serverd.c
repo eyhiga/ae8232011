@@ -26,7 +26,7 @@
 
 #define MAXFD 64
 
-void mysyslog(char *progname){
+void mysyslog(char *progname, char *address){
  
     FILE *fp;
     char buf[64], *ctime();
@@ -35,12 +35,13 @@ void mysyslog(char *progname){
     
     sprintf(buf, "%s", ctime(now));
     
-    if((fp=fopen("ERROR.LOG", "a")) == 0)
+    if((fp=fopen("CONNECT.LOG", "a")) == 0)
     {
         exit(1);
     }
     
     fprintf(fp, "%s %s\n", progname, buf);
+    fprintf(fp, "server: got connection from %s\n", address);
     fclose(fp);
     
 }
@@ -129,7 +130,8 @@ int main(int argc, char *argv[]){
 	    exit(1);
         }
         
-        fprintf(stderr, "server: got connection from %s\n",inet_ntoa(their_addr.sin_addr));
+        fprintf(stderr, "server: got connection from %s\n", inet_ntoa(their_addr.sin_addr));
+        mysyslog(argv[0], inet_ntoa(their_addr.sin_addr));
 	
 	/* Cria um processo filho para cuidar do envio na conexao estabelecida em new_fd */
         if(!fork()){
