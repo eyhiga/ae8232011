@@ -17,6 +17,7 @@
 #include <syslog.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #define MYPORT 9034    /* porta usada para a conexao */
 
@@ -29,19 +30,18 @@
 void mysyslog(char *progname, char *address){
  
     FILE *fp;
-    char buf[64], *ctime();
-    time_t time(), now;
-    (void) time(&now);
+    char buf[64];
+    time_t now;
+    time(&now);
     
-    sprintf(buf, "%s", ctime(now));
-    
-    if((fp=fopen("CONNECT.LOG", "a")) == 0)
+    sprintf(buf, "%s", ctime(&now));
+    buf[strlen(buf)-1] = '\0';
+    if((fp=fopen("CONNECTION.LOG", "a")) == 0)
     {
         exit(1);
     }
-    
-    fprintf(fp, "%s %s\n", progname, buf);
-    fprintf(fp, "server: got connection from %s\n", address);
+    fprintf(fp, "%s\n", progname);
+    fprintf(fp, "%s: server: got connection from %s\n\n", buf,address);
     fclose(fp);
     
 }
@@ -123,14 +123,14 @@ int main(int argc, char *argv[]){
         /* Abre ambos os descritores de arquivo no socket usado para envio e recebimento */
         if((rsock = fdopen(new_fd, "r")) == NULL){
             perror("rsock");
-	    exit(1);
+	        exit(1);
         }
+        setvbuf(rsock, NULL, _IOLBF, 0);
         if((wsock = fdopen(new_fd, "w")) == NULL){
             perror("wsock");
-	    exit(1);
+	        exit(1);
         }
-        
-        fprintf(stderr, "server: got connection from %s\n", inet_ntoa(their_addr.sin_addr));
+        setvbuf(wsock, NULL, _IOLBF, 0);
         mysyslog(argv[0], inet_ntoa(their_addr.sin_addr));
 	
 	/* Cria um processo filho para cuidar do envio na conexao estabelecida em new_fd */
@@ -139,10 +139,8 @@ int main(int argc, char *argv[]){
 	    /* Loop de recebimento e ecoamento */
             while ((fgets(line, MAXLINE, rsock)) != NULL) {
                 line[strlen(line)] = '\0';
-                fflush(rsock);
-                fprintf(stderr, "Linha Recebida: %s", line);
+                //fprintf(stderr, "Linha Recebida: %s", line);
                 fputs(line, wsock);
-                fflush(wsock);
             }
             close(new_fd);
 
