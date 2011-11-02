@@ -101,7 +101,6 @@ int main(int argc, char *argv[])
 
     while(1)
     {
-        
         if(select(nfds, &readfds, &writefds, NULL, NULL) < 0)
         {
             perror("select");
@@ -148,8 +147,6 @@ int main(int argc, char *argv[])
         FD_SET(sockfd, &readfds);
         FD_SET(sockfd, &writefds);
     }
-
-    fprintf(stderr, "FINAL\n");
 
     rcvAux = fgets(rcv, MAXDATASIZE, rsock);
     fflush(rsock);
