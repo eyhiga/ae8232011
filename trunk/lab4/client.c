@@ -20,13 +20,17 @@
 
 #define MAXDATASIZE 500 /* maximo de bytes que podem ser mandados de uma vez */
 
+#define max(x,y) ((x) > (y) ? (x) : (y))
+
 int main(int argc, char *argv[])
 {
 
+    fd_set readfds, writefds;
     float telapsed;
     clock_t start, end;
     struct tms inicio, fim;
     int sockfd, i;
+    int nfds;
     int numLinesSent=0;
     int numLinesRcv=0;
     int numBiggestLine=0;
@@ -63,12 +67,19 @@ int main(int argc, char *argv[])
         perror("socket");
         exit(1);
     }
-    
+
     /* abre ambos os descritores de arquivo no socket a ser usado para o envio e recebimento */
     rsock = fdopen(sockfd, "r");
     wsock = fdopen(sockfd, "w");
     setvbuf(rsock, NULL, _IOLBF, 0);
     setvbuf(wsock, NULL, _IOLBF, 0);
+
+    nfds = sockfd + 1;
+    FD_ZERO(&readfds);
+    FD_ZERO(&writefds);
+
+    FD_SET(sockfd, &readfds);
+    FD_SET(sockfd, &writefds);
 
     their_addr.sin_family = AF_INET;       /* Ordem dos bytes do host */
     their_addr.sin_port = htons(PORT);     /* Ordem dos bytes da rede */
@@ -88,12 +99,25 @@ int main(int argc, char *argv[])
 
     start = times(&inicio); /* Inicio da contagem de tempo */
 
-    if(!fork())
+    while(1)
     {
-        // Processo filho - Envio
-        while(fgets(buf, MAXDATASIZE, stdin) != NULL)
+        
+        if(select(nfds, &readfds, &writefds, NULL, NULL) < 0)
         {
+            perror("select");
+            exit(1);
+        }
+
+        /* Escrita */
+        if(FD_ISSET(sockfd, &writefds))
+        {
+            if(fgets(buf, MAXDATASIZE-1, stdin) == NULL)
+            {
+                shutdown(sockfd, SHUT_WR);
+                break;
+            }
             success = fputs(buf, wsock);
+            fflush(wsock);
 
             if(success > 0)
             {
@@ -105,23 +129,30 @@ int main(int argc, char *argv[])
                 {
                     numBiggestLine = charsSentAux;
                 }
-
             }
+            FD_CLR(sockfd, &writefds);
         }
-        fputs(buf, wsock);
-	
-	/* Fechamento do socket */
-        shutdown(sockfd, SHUT_WR);
-	
-	/* Estatisticas de envio do processo filho */
-        fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
-    	fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
-    	fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
-        exit(0);
+
+        /* Leitura  */
+        if(FD_ISSET(sockfd, &readfds))
+        {
+            rcvAux = fgets(rcv, MAXDATASIZE, rsock);
+            fflush(rsock);
+            charsRcvAux = strlen(rcvAux);
+            numCharsRcv += charsRcvAux;
+            numLinesRcv++;
+            printf("%s", rcv);
+            FD_CLR(sockfd, &readfds);
+        }
+
+        FD_SET(sockfd, &readfds);
+        FD_SET(sockfd, &writefds);
     }
 
-    /* Processo pai - Laço de recebimento de dados */
+    fprintf(stderr, "FINAL\n");
+
     rcvAux = fgets(rcv, MAXDATASIZE, rsock);
+    fflush(rsock);
     while(rcvAux != NULL)
     {
         charsRcvAux = strlen(rcvAux);
@@ -129,17 +160,25 @@ int main(int argc, char *argv[])
         numLinesRcv++;
         printf("%s", rcv);
         rcvAux = fgets(rcv, MAXDATASIZE, rsock);
+        fflush(rsock);
     }
+
+
+    FD_CLR(sockfd, &writefds);
+    FD_CLR(sockfd, &readfds);
+    close(sockfd);
+    fclose(rsock);
+    fclose(wsock);
 
     end = times(&fim);
     telapsed = (float)(end-start) / sysconf(_SC_CLK_TCK); /* termina contagem de tempo */
-    wait(NULL);
-    /* Estatisticas de recebimento do processo pai */
+
+    fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
+    fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
+    fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
     fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
     fprintf(stderr, "Linhas recebidas: %d\n", numLinesRcv);
     fprintf(stderr, "Caracteres recebidos: %d\n", numCharsRcv);
-    close(sockfd);
-    fclose(rsock);
 
     return 0;
 
