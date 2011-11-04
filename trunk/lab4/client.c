@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Linhas enviadas: %d\n", numLinesSent);
     fprintf(stderr, "Maior linha: %d\n", numBiggestLine);
     fprintf(stderr, "Caracteres enviados: %d\n", numCharsSent);
-    fprintf(stderr, "Tempo total: %4.1f s\n", telapsed);
+    fprintf(stderr, "Tempo total: %5.4f s\n", telapsed);
     fprintf(stderr, "Linhas recebidas: %d\n", numLinesRcv);
     fprintf(stderr, "Caracteres recebidos: %d\n", numCharsRcv);
 
