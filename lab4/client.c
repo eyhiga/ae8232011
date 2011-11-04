@@ -116,8 +116,6 @@ int main(int argc, char *argv[])
                 break;
             }
             success = fputs(buf, wsock);
-            fflush(wsock);
-
             if(success > 0)
             {
                 charsSentAux = strlen(buf);
@@ -136,7 +134,6 @@ int main(int argc, char *argv[])
         if(FD_ISSET(sockfd, &readfds))
         {
             rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-            fflush(rsock);
             charsRcvAux = strlen(rcvAux);
             numCharsRcv += charsRcvAux;
             numLinesRcv++;
@@ -149,7 +146,6 @@ int main(int argc, char *argv[])
     }
 
     rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-    fflush(rsock);
     while(rcvAux != NULL)
     {
         charsRcvAux = strlen(rcvAux);
@@ -157,7 +153,6 @@ int main(int argc, char *argv[])
         numLinesRcv++;
         printf("%s", rcv);
         rcvAux = fgets(rcv, MAXDATASIZE, rsock);
-        fflush(rsock);
     }
 
 
