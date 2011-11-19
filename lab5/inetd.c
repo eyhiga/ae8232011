@@ -315,8 +315,13 @@ int main(int argc, char *argv[])
                 continue;
             }
 
-            mysyslog(argv[0], inet_ntoa(their_addr_echo.sin_addr), 
-                    SERVICE_ECHO);
+            mysyslog(argv[0], inet_ntoa(their_addr_echo.sin_addr), SERVICE_ECHO);
+
+            /*if(fork() == 0)
+            {
+                exec(c[index_echo].pathname, c[index_echo].args);
+            }*/
+
             FD_CLR(sock_echo, &readfds);
         }
         else if(FD_ISSET(sock_tcp, &readfds))
@@ -331,6 +336,17 @@ int main(int argc, char *argv[])
             }
 
             mysyslog(argv[0], inet_ntoa(their_addr_tcp.sin_addr), SERVICE_TCP);
+
+            if(fork() == 0)
+            {
+                char *port = malloc(sizeof(char) * MAXDATASIZE);
+                sprintf(port, "%d", *(c[index_tcp].port));
+                //itoa(*(c[index_tcp].port), port, 10);
+                char *args[] = {c[index_tcp].pathname, inet_ntoa(their_addr_tcp.sin_addr), port, (char *) 0};
+
+                execv(c[index_tcp].pathname, args);
+            }
+
             FD_CLR(sock_tcp, &readfds);
         }
         else if(FD_ISSET(sock_udp, &readfds))
@@ -339,14 +355,20 @@ int main(int argc, char *argv[])
                     (struct sockaddr *)&their_addr_udp, &addr_len);
 
             mysyslog(argv[0], inet_ntoa(their_addr_udp.sin_addr), SERVICE_UDP);
+
+/*            if(fork() == 0)
+            {
+                char port[MAXDATASIZE];
+                itoa(c[index_udp].port, port, 10);
+                char *args[] = {inet_ntoa(their_addr_udp.sin_addr), port};
+
+                exec(c[index_udp].pathname, args);
+            }*/
+
             FD_CLR(sock_udp, &readfds);
         }
 
     }
-
-    printf("%d\n", port_echo);
-    printf("%d\n", port_tcp);
-    printf("%d\n", port_udp);
 
     return 0;
 

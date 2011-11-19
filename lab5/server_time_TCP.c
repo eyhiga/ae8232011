@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#define MYPORT 9034    /* porta usada para a conexao */
+#define MYPORT 9451    /* porta usada para a conexao */
 
 #define BACKLOG 10     /* maximo de conexoes que podem ficar na fila  */
 
