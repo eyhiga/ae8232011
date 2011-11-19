@@ -57,7 +57,7 @@ int main()
         perror("bind");
         exit(1);
     }
-    
+
     /* Escuta no socket apropriado*/
     if (listen(sockfd, BACKLOG) == -1) {
         perror("listen");
@@ -66,29 +66,29 @@ int main()
 
     while(1) {  /* main accept() loop */
         sin_size = sizeof(struct sockaddr_in);
-	
-	/* Aceita novas conexoes no socket de envio, atraves dos dados recebidos pelo socket de escuta */
+
+        /* Aceita novas conexoes no socket de envio, atraves dos dados recebidos pelo socket de escuta */
         if ((new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size)) == -1) {
             perror("accept");
             continue;
         }
-        
+
         /* Abre ambos os descritores de arquivo no socket usado para envio e recebimento */
         if((rsock = fdopen(new_fd, "r")) == NULL){
             perror("rsock");
-	    exit(1);
+            exit(1);
         }
         if((wsock = fdopen(new_fd, "w")) == NULL){
             perror("wsock");
-	    exit(1);
+            exit(1);
         }
-        
+
         fprintf(stderr, "server: got connection from %s\n",inet_ntoa(their_addr.sin_addr));
-	
-	/* Cria um processo filho para cuidar do envio na conexao estabelecida em new_fd */
+
+        /* Cria um processo filho para cuidar do envio na conexao estabelecida em new_fd */
         if(!fork()){
-	    
-	    /* Loop de recebimento e ecoamento */
+
+            /* Loop de recebimento e ecoamento */
             while ((fgets(line, MAXLINE, rsock)) != NULL) {
                 line[strlen(line)] = '\0';
                 fflush(rsock);
@@ -101,7 +101,7 @@ int main()
             fprintf(stderr, "server: connection from %s closed\n",inet_ntoa(their_addr.sin_addr));
             exit(0);
         }
-        
+
         /* Fecha o socket de envio e recebimento */
         close(new_fd);
 

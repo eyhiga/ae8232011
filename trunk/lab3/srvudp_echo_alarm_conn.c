@@ -63,9 +63,19 @@ int main(void)
         cont = 1;
         keep_going = 1;
         
+        their_addr.sin_family = AF_UNSPEC;
+        if(connect(sockfd, (struct sockaddr *)&their_addr, sizeof(struct sockaddr)) == -1)
+        {
+            perror("connect");
+            exit(1);
+        }        
+        
         numBytesRcv = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
         contChars += numBytesRcv;
         contLin++;
+        //printf("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%d@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n", numBytesRcv);
+        buf[numBytesRcv] = '\0';
+        printf("%s", buf);
 
         buf[numBytesRcv] = '\0';
         fprintf(stderr, "%s", buf);
@@ -77,6 +87,8 @@ int main(void)
         }
         numBytesSent += send(sockfd, buf, strlen(buf), 0);
 
+        numBytesSent += send(sockfd, buf, strlen(buf), 0);
+         
 		while(keep_going && (numBytesRcv = recv(sockfd, buf, MAXBUFLEN-1, 0)) != 0)
         {
             
