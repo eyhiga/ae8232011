@@ -26,6 +26,8 @@
 #define SERVICE_TCP "time_tcp"
 #define SERVICE_UDP "time_udp"
 
+#define max(x, y) ((x) > (y) ? (x) : (y))
+
 typedef struct conf
 {
     char *name;
@@ -53,7 +55,9 @@ void mysyslog(char *progname, char *address, char *service)
     }
 
     fprintf(fp, "%s\n", progname);
-    fprintf(fp, "%s: server: got connection from %s, service: %s\n\n", buf, address, service);
+    fprintf(fp, "%s\n", buf);
+    fprintf(fp, "server: got connection from %s\n", address);
+    fprintf(fp, "service: %s\n\n", service);
     fclose(fp);
 
 }
@@ -123,15 +127,11 @@ int create_socket_tcp()
     if((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
         return -1;
-        //perror("socket");
-        //exit(1);
     }
 
     if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
     {
         return -1;
-        //perror("setsockopt");
-        //exit(1);
     }
 
     return sock;
@@ -140,8 +140,14 @@ int create_socket_tcp()
 int create_socket_udp()
 {
     int sock;
+    int yes=1;
 
     if((sock = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+    {
+        return -1;
+    }
+
+    if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
     {
         return -1;
     }
@@ -174,6 +180,15 @@ int main(int argc, char *argv[])
     /* Informacoes de configuracao */
     FILE *fp = fopen("inetd.conf", "r");
     conf *c = malloc(3 * sizeof(conf));
+
+    /* Informacoes para o select */
+    fd_set readfds;
+    int nfds;
+
+    /* Informacoes gerais */
+    char buf[MAXDATASIZE];
+    socklen_t addr_len = sizeof(struct sockaddr);
+    socklen_t sin_size = sizeof(struct sockaddr_in);
 
     /* Informacoes do socket de echo */
     int sock_echo;
@@ -271,6 +286,62 @@ int main(int argc, char *argv[])
     {
         perror("bind");
         exit(1);
+    }
+
+    /* Configura select */
+    nfds = max(sock_echo, max(sock_tcp, sock_udp)) + 1;
+    FD_ZERO(&readfds);
+
+    while(1)
+    {
+        FD_SET(sock_echo, &readfds);
+        FD_SET(sock_tcp, &readfds);
+        FD_SET(sock_udp, &readfds);
+
+        if(select(nfds, &readfds, NULL, NULL, NULL) < 0)
+        {
+            perror("select");
+            exit(1);
+        }
+
+        if(FD_ISSET(sock_echo, &readfds))
+        {
+            int sock_echo_new;
+
+            if((sock_echo_new == accept(sock_echo, 
+                    (struct sockaddr *)&their_addr_echo, &sin_size)) == -1)
+            {
+                perror("accept");
+                continue;
+            }
+
+            mysyslog(argv[0], inet_ntoa(their_addr_echo.sin_addr), 
+                    SERVICE_ECHO);
+            FD_CLR(sock_echo, &readfds);
+        }
+        else if(FD_ISSET(sock_tcp, &readfds))
+        {
+            int sock_tcp_new;
+
+            if((sock_tcp_new == accept(sock_tcp,
+                    (struct sockaddr *)&their_addr_tcp, &sin_size)) == -1)
+            {
+                perror("accept");
+                continue;
+            }
+
+            mysyslog(argv[0], inet_ntoa(their_addr_tcp.sin_addr), SERVICE_TCP);
+            FD_CLR(sock_tcp, &readfds);
+        }
+        else if(FD_ISSET(sock_udp, &readfds))
+        {
+            int t = recvfrom(sock_udp, buf, MAXDATASIZE-1, MSG_PEEK, 
+                    (struct sockaddr *)&their_addr_udp, &addr_len);
+
+            mysyslog(argv[0], inet_ntoa(their_addr_udp.sin_addr), SERVICE_UDP);
+            FD_CLR(sock_udp, &readfds);
+        }
+
     }
 
     printf("%d\n", port_echo);
