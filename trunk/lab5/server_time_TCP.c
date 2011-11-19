@@ -29,18 +29,13 @@
 void logging(char *address, char *dt){
 
     FILE *fp;
-    char buf[64];
-    time_t now;
-    time(&now);
     int p = MYPORT;
 
-    sprintf(buf, "%s", ctime(&now));
-    buf[strlen(buf)-1] = '\0';
     if((fp=fopen("DT_TCP.LOG", "a")) == 0)
     {
         exit(1);
     }
-    fprintf(fp, "%s: server: got connection from %s, PORT: %d\n\n", buf,address,p);
+    fprintf(fp, "%s server: got connection from %s, PORT: %d\n\n", dt ,address,p);
     fclose(fp);
 
 }
