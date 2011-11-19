@@ -24,23 +24,20 @@
 
 #define BACKLOG 10     /* maximo de conexoes que podem ficar na fila  */
 
+#define MAXBUFLEN 100
+
 #define MAXDTSIZE 200  /* Tamanho da string a ser enviada */
 
 void logging(char *address, char *dt){
 
     FILE *fp;
-    char buf[64];
-    time_t now;
-    time(&now);
     int p = MYPORT;
 
-    sprintf(buf, "%s", ctime(&now));
-    buf[strlen(buf)-1] = '\0';
     if((fp=fopen("DT_UDP.LOG", "a")) == 0)
     {
         exit(1);
     }
-    fprintf(fp, "%s: server: got connection from %s, PORT: %d\n\n", buf,address,p);
+    fprintf(fp, "%s server: got connection from %s, PORT: %d\n\n", dt,address,p);
     fclose(fp);
 
 }
@@ -50,12 +47,12 @@ int main(int argc, char *argv[]){
     int sockfd;
     struct sockaddr_in my_addr;    /* informacao de endereco do servidor */
     struct sockaddr_in their_addr; /* informacoes do cliente  */
-    unsigned int addr_size;
+    socklen_t addr_len;
     char dt[MAXDTSIZE];
-    char aux[1];
+    char aux[MAXBUFLEN];
     time_t now;
     time(&now);
-
+    
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
         perror("Inicializacao do socket");
         exit(1);
@@ -64,7 +61,7 @@ int main(int argc, char *argv[]){
     my_addr.sin_family = AF_INET;         /* Ordem dos bytes do host */
     my_addr.sin_port = htons(MYPORT);     /* Ordem dos bytes da rede */
     my_addr.sin_addr.s_addr = INADDR_ANY; /* Preenche com IP do server */
-    bzero(&(my_addr.sin_zero), 8);
+    memset(&(my_addr.sin_zero), '\0', 8);
 
     /* Seta informacoes do server para o socket */
     if (bind(sockfd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr)) == -1) {
@@ -72,13 +69,13 @@ int main(int argc, char *argv[]){
         exit(1);
     }
 
-    addr_size = sizeof(struct sockaddr_in);
+    addr_len = sizeof(struct sockaddr);
 
-    recvfrom(sockfd, aux, 1 , 0, (struct sockaddr *)&their_addr, &addr_size);
+    recvfrom(sockfd, aux, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
     
     ctime_r(&now, dt);
-
-    sendto(sockfd, dt, strlen(dt), 0, (struct sockaddr *)&their_addr, addr_size);
+    
+    sendto(sockfd, dt, strlen(dt), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
 
     
     close(sockfd);
