@@ -150,20 +150,20 @@ int create_socket_udp()
 
 }
 
-int get_port(conf *c, char *service)
+int get_index(conf *c, char *service)
 {
     int i;
-    int port;
+    int index;
 
     for(i=0; i<3; i++)
     {
         if(strcmp(c[i].name, service) == 0)
         {
-            port = *(c[i].port);
+            index = i;
             break;
         }
     }
-    return port;
+    return index;
 }
 
 int main(int argc, char *argv[])
@@ -179,16 +179,19 @@ int main(int argc, char *argv[])
     int sock_echo;
     struct sockaddr_in my_addr_echo, their_addr_echo;
     int port_echo = 0;
+    int index_echo = 0;
 
     /* Informacoes do socket tcp */
     int sock_tcp;
     struct sockaddr_in my_addr_tcp, their_addr_tcp;
     int port_tcp = 0;
+    int index_tcp = 0;
 
     /* Informacoes do socket udp */
     int sock_udp;
     struct sockaddr_in my_addr_udp, their_addr_udp;
     int port_udp = 0;
+    int index_udp = 0;
 
     read_config(fp, c);
 
@@ -200,7 +203,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    port_echo = get_port(c, SERVICE_ECHO);
+    index_echo = get_index(c, SERVICE_ECHO);
+    port_echo = *(c[index_echo].port);
     my_addr_echo.sin_family = AF_INET;
     my_addr_echo.sin_port = htons(port_echo);
     my_addr_echo.sin_addr.s_addr = INADDR_ANY;
@@ -227,7 +231,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    port_tcp = get_port(c, SERVICE_TCP);
+    index_tcp = get_index(c, SERVICE_TCP);
+    port_tcp = *(c[index_tcp].port);
     my_addr_tcp.sin_family = AF_INET;
     my_addr_tcp.sin_port = htons(port_tcp);
     my_addr_tcp.sin_addr.s_addr = INADDR_ANY;
@@ -254,7 +259,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    port_udp = get_port(c, SERVICE_UDP);
+    index_udp = get_index(c, SERVICE_UDP);
+    port_udp = *(c[index_udp].port);
     my_addr_udp.sin_family = AF_INET;
     my_addr_udp.sin_port = htons(port_udp);
     my_addr_udp.sin_addr.s_addr = INADDR_ANY;
