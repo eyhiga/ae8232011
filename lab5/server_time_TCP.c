@@ -53,40 +53,40 @@ int main(int argc, char *argv[]){
 
     FILE *wsock;
 
-//    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-//        perror("Inicializacao do socket");
-//        exit(1);
-//    }
-//
-//    if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
-//    {
-//        perror("setsockopt");
-//        exit(1);
-//    }
-//
-//    my_addr.sin_family = AF_INET;         /* Ordem dos bytes do host */
-//    my_addr.sin_port = htons(MYPORT);     /* Ordem dos bytes da rede */
-//    my_addr.sin_addr.s_addr = INADDR_ANY; /* Preenche com IP do server */
-//    bzero(&(my_addr.sin_zero), 8);
-//
-//    /* Seta informacoes do server para o socket */
-//    if (bind(sockfd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr)) == -1) {
-//        perror("bind");
-//        exit(1);
-//    }
-//
-//    /* Escuta no socket apropriado*/
-//    if (listen(sockfd, BACKLOG) == -1) {
-//        perror("listen");
-//        exit(1);
-//    }
-//
-//    addr_size = sizeof(struct sockaddr_in);
-//
-//    /* Aceita novas conexoes no socket de envio, atraves dos dados recebidos pelo socket de escuta */
-//    if ((new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &addr_size)) == -1) {
-//        perror("accept");
-//    }
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        perror("Inicializacao do socket");
+        exit(1);
+    }
+
+    if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+    {
+        perror("setsockopt");
+        exit(1);
+    }
+
+    my_addr.sin_family = AF_INET;         /* Ordem dos bytes do host */
+    my_addr.sin_port = htons(MYPORT);     /* Ordem dos bytes da rede */
+    my_addr.sin_addr.s_addr = INADDR_ANY; /* Preenche com IP do server */
+    bzero(&(my_addr.sin_zero), 8);
+
+    /* Seta informacoes do server para o socket */
+    if (bind(sockfd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr)) == -1) {
+        perror("bind");
+        exit(1);
+    }
+
+    /* Escuta no socket apropriado*/
+    if (listen(sockfd, BACKLOG) == -1) {
+        perror("listen");
+        exit(1);
+    }
+
+    addr_size = sizeof(struct sockaddr_in);
+
+    /* Aceita novas conexoes no socket de envio, atraves dos dados recebidos pelo socket de escuta */
+    if ((new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &addr_size)) == -1) {
+        perror("accept");
+    }
 
     printf("ok1\n");
     new_fd = 0;
