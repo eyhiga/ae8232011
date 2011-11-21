@@ -189,6 +189,7 @@ int main(int argc, char *argv[])
     char buf[MAXDATASIZE];
     socklen_t addr_len = sizeof(struct sockaddr);
     socklen_t sin_size = sizeof(struct sockaddr_in);
+    int i;
 
     /* Informacoes do socket de echo */
     int sock_echo;
@@ -210,90 +211,92 @@ int main(int argc, char *argv[])
 
     read_config(fp, c);
 
-    /* Configura socket do servico de echo */
-    sock_echo = create_socket_tcp();
-    if(sock_echo == -1)
-    {
-        perror("socket");
-        exit(1);
-    }
-
-    index_echo = get_index(c, SERVICE_ECHO);
-    port_echo = *(c[index_echo].port);
-    my_addr_echo.sin_family = AF_INET;
-    my_addr_echo.sin_port = htons(port_echo);
-    my_addr_echo.sin_addr.s_addr = INADDR_ANY;
-    bzero(&(my_addr_echo.sin_zero), 8);
-
-    if(bind(sock_echo, (struct sockaddr*) &my_addr_echo,
-                sizeof(struct sockaddr)) == -1)
-    {
-        perror("bind");
-        exit(1);
-    }
-
-    if(listen(sock_echo, BACKLOG) == -1)
-    {
-        perror("listen");
-        exit(1);
-    }
-
-    /* Configura socket do servico tcp */
-    sock_tcp = create_socket_tcp();
-    if(sock_tcp == -1)
-    {
-        perror("socket");
-        exit(1);
-    }
-
-    index_tcp = get_index(c, SERVICE_TCP);
-    port_tcp = *(c[index_tcp].port);
-    my_addr_tcp.sin_family = AF_INET;
-    my_addr_tcp.sin_port = htons(port_tcp);
-    my_addr_tcp.sin_addr.s_addr = INADDR_ANY;
-    bzero(&(my_addr_tcp.sin_zero), 8);
-
-    if(bind(sock_tcp, (struct sockaddr*) &my_addr_tcp,
-                sizeof(struct sockaddr)) == -1)
-    {
-        perror("bind");
-        exit(1);
-    }
-
-    if(listen(sock_tcp, BACKLOG) == -1)
-    {
-        perror("listen");
-        exit(1);
-    }
-
-    /* Configura socket do servico udp */
-    sock_udp = create_socket_udp();
-    if(sock_udp == -1)
-    {
-        perror("socket");
-        exit(1);
-    }
-
-    index_udp = get_index(c, SERVICE_UDP);
-    port_udp = *(c[index_udp].port);
-    my_addr_udp.sin_family = AF_INET;
-    my_addr_udp.sin_port = htons(port_udp);
-    my_addr_udp.sin_addr.s_addr = INADDR_ANY;
-    memset(&(my_addr_udp.sin_zero), '\0', 8);
-
-    if(bind(sock_udp, (struct sockaddr *)&my_addr_udp,
-                sizeof(struct sockaddr)) == -1) 
-    {
-        perror("bind");
-        exit(1);
-    }
-
-    /* Configura select */
-    nfds = max(sock_echo, max(sock_tcp, sock_udp)) + 1;
-    FD_ZERO(&readfds);
 
     while(1)
     {
+
+        /* Configura socket do servico de echo */
+        sock_echo = create_socket_tcp();
+        if(sock_echo == -1)
+        {
+            perror("socket");
+            exit(1);
+        }
+
+        index_echo = get_index(c, SERVICE_ECHO);
+        port_echo = *(c[index_echo].port);
+        my_addr_echo.sin_family = AF_INET;
+        my_addr_echo.sin_port = htons(port_echo);
+        my_addr_echo.sin_addr.s_addr = INADDR_ANY;
+        bzero(&(my_addr_echo.sin_zero), 8);
+
+        if(bind(sock_echo, (struct sockaddr*) &my_addr_echo,
+                    sizeof(struct sockaddr)) == -1)
+        {
+            perror("bind");
+            exit(1);
+        }
+
+        if(listen(sock_echo, BACKLOG) == -1)
+        {
+            perror("listen");
+            exit(1);
+        }
+
+        /* Configura socket do servico tcp */
+        sock_tcp = create_socket_tcp();
+        if(sock_tcp == -1)
+        {
+            perror("socket");
+            exit(1);
+        }
+
+        index_tcp = get_index(c, SERVICE_TCP);
+        port_tcp = *(c[index_tcp].port);
+        my_addr_tcp.sin_family = AF_INET;
+        my_addr_tcp.sin_port = htons(port_tcp);
+        my_addr_tcp.sin_addr.s_addr = INADDR_ANY;
+        bzero(&(my_addr_tcp.sin_zero), 8);
+
+        if(bind(sock_tcp, (struct sockaddr*) &my_addr_tcp,
+                    sizeof(struct sockaddr)) == -1)
+        {
+            perror("bind");
+            exit(1);
+        }
+
+        if(listen(sock_tcp, BACKLOG) == -1)
+        {
+            perror("listen");
+            exit(1);
+        }
+
+        /* Configura socket do servico udp */
+        sock_udp = create_socket_udp();
+        if(sock_udp == -1)
+        {
+            perror("socket");
+            exit(1);
+        }
+
+        index_udp = get_index(c, SERVICE_UDP);
+        port_udp = *(c[index_udp].port);
+        my_addr_udp.sin_family = AF_INET;
+        my_addr_udp.sin_port = htons(port_udp);
+        my_addr_udp.sin_addr.s_addr = INADDR_ANY;
+        memset(&(my_addr_udp.sin_zero), '\0', 8);
+
+        if(bind(sock_udp, (struct sockaddr *)&my_addr_udp,
+                    sizeof(struct sockaddr)) == -1) 
+        {
+            perror("bind");
+            exit(1);
+        }
+
+        /* Configura select */
+        nfds = max(sock_echo, max(sock_tcp, sock_udp)) + 1;
+        FD_ZERO(&readfds);
+
         FD_SET(sock_echo, &readfds);
         FD_SET(sock_tcp, &readfds);
         FD_SET(sock_udp, &readfds);
@@ -309,18 +312,19 @@ int main(int argc, char *argv[])
             int sock_echo_new;
 
             if((sock_echo_new == accept(sock_echo, 
-                    (struct sockaddr *)&their_addr_echo, &sin_size)) == -1)
+                        (struct sockaddr *)&their_addr_echo, &sin_size)) == -1)
             {
                 perror("accept");
                 continue;
             }
 
-            mysyslog(argv[0], inet_ntoa(their_addr_echo.sin_addr), SERVICE_ECHO);
+            mysyslog(argv[0], inet_ntoa(their_addr_echo.sin_addr), 
+                    SERVICE_ECHO);
 
             /*if(fork() == 0)
-            {
-                exec(c[index_echo].pathname, c[index_echo].args);
-            }*/
+              {
+              exec(c[index_echo].pathname, c[index_echo].args);
+              }*/
 
             FD_CLR(sock_echo, &readfds);
         }
@@ -329,7 +333,7 @@ int main(int argc, char *argv[])
             int sock_tcp_new;
 
             if((sock_tcp_new == accept(sock_tcp,
-                    (struct sockaddr *)&their_addr_tcp, &sin_size)) == -1)
+                         (struct sockaddr *)&their_addr_tcp, &sin_size)) == -1)
             {
                 perror("accept");
                 continue;
@@ -341,12 +345,28 @@ int main(int argc, char *argv[])
             {
                 char *port = malloc(sizeof(char) * MAXDATASIZE);
                 sprintf(port, "%d", *(c[index_tcp].port));
-                //itoa(*(c[index_tcp].port), port, 10);
-                char *args[] = {c[index_tcp].pathname, inet_ntoa(their_addr_tcp.sin_addr), port, (char *) 0};
+                char *args[] = {c[index_tcp].pathname, 
+                    inet_ntoa(their_addr_tcp.sin_addr), port, (char *) 0};
 
-                execv(c[index_tcp].pathname, args);
+                int sock0, sock1, sock2;
+
+                //for(i=3; i<MAXFD; i++)
+                //{
+                //    close(i);
+                //}
+
+                printf("%d\n", dup2(sock_tcp_new, 0));
+                printf("%d\n", dup2(sock_tcp_new, 1));
+                printf("%d\n", dup2(sock_tcp_new, 2));
+                printf("%d\n", sock_tcp_new);
+                //dup2(sock_tcp_new, 1);
+                //dup2(sock_tcp_new, 2);
+
+
+                execv(c[index_tcp].pathname, c[index_tcp.args]);
             }
 
+            close(sock_tcp);
             FD_CLR(sock_tcp, &readfds);
         }
         else if(FD_ISSET(sock_udp, &readfds))
@@ -356,14 +376,14 @@ int main(int argc, char *argv[])
 
             mysyslog(argv[0], inet_ntoa(their_addr_udp.sin_addr), SERVICE_UDP);
 
-/*            if(fork() == 0)
-            {
-                char port[MAXDATASIZE];
-                itoa(c[index_udp].port, port, 10);
-                char *args[] = {inet_ntoa(their_addr_udp.sin_addr), port};
+            /*            if(fork() == 0)
+                          {
+                          char port[MAXDATASIZE];
+                          itoa(c[index_udp].port, port, 10);
+                          char *args[] = {inet_ntoa(their_addr_udp.sin_addr), port};
 
-                exec(c[index_udp].pathname, args);
-            }*/
+                          exec(c[index_udp].pathname, args);
+                          }*/
 
             FD_CLR(sock_udp, &readfds);
         }
