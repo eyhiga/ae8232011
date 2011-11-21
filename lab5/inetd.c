@@ -211,88 +211,87 @@ int main(int argc, char *argv[])
 
     read_config(fp, c);
 
+    /* Configura socket do servico de echo */
+    sock_echo = create_socket_tcp();
+    if(sock_echo == -1)
+    {
+        perror("socket");
+        exit(1);
+    }
+
+    index_echo = get_index(c, SERVICE_ECHO);
+    port_echo = *(c[index_echo].port);
+    my_addr_echo.sin_family = AF_INET;
+    my_addr_echo.sin_port = htons(port_echo);
+    my_addr_echo.sin_addr.s_addr = INADDR_ANY;
+    bzero(&(my_addr_echo.sin_zero), 8);
+
+    if(bind(sock_echo, (struct sockaddr*) &my_addr_echo,
+                sizeof(struct sockaddr)) == -1)
+    {
+        perror("bind");
+        exit(1);
+    }
+
+    if(listen(sock_echo, BACKLOG) == -1)
+    {
+        perror("listen");
+        exit(1);
+    }
+
+    /* Configura socket do servico tcp */
+    sock_tcp = create_socket_tcp();
+    if(sock_tcp == -1)
+    {
+        perror("socket");
+        exit(1);
+    }
+
+    index_tcp = get_index(c, SERVICE_TCP);
+    port_tcp = *(c[index_tcp].port);
+    my_addr_tcp.sin_family = AF_INET;
+    my_addr_tcp.sin_port = htons(port_tcp);
+    my_addr_tcp.sin_addr.s_addr = INADDR_ANY;
+    bzero(&(my_addr_tcp.sin_zero), 8);
+
+    if(bind(sock_tcp, (struct sockaddr*) &my_addr_tcp,
+                sizeof(struct sockaddr)) == -1)
+    {
+        perror("bind");
+        exit(1);
+    }
+
+    if(listen(sock_tcp, BACKLOG) == -1)
+    {
+        perror("listen");
+        exit(1);
+    }
+
+    /* Configura socket do servico udp */
+    sock_udp = create_socket_udp();
+    if(sock_udp == -1)
+    {
+        perror("socket");
+        exit(1);
+    }
+
+    index_udp = get_index(c, SERVICE_UDP);
+    port_udp = *(c[index_udp].port);
+    my_addr_udp.sin_family = AF_INET;
+    my_addr_udp.sin_port = htons(port_udp);
+    my_addr_udp.sin_addr.s_addr = INADDR_ANY;
+    memset(&(my_addr_udp.sin_zero), '\0', 8);
+
+    if(bind(sock_udp, (struct sockaddr *)&my_addr_udp,
+                sizeof(struct sockaddr)) == -1) 
+    {
+        perror("bind");
+        exit(1);
+    }
+
 
     while(1)
     {
-
-        /* Configura socket do servico de echo */
-        sock_echo = create_socket_tcp();
-        if(sock_echo == -1)
-        {
-            perror("socket");
-            exit(1);
-        }
-
-        index_echo = get_index(c, SERVICE_ECHO);
-        port_echo = *(c[index_echo].port);
-        my_addr_echo.sin_family = AF_INET;
-        my_addr_echo.sin_port = htons(port_echo);
-        my_addr_echo.sin_addr.s_addr = INADDR_ANY;
-        bzero(&(my_addr_echo.sin_zero), 8);
-
-        if(bind(sock_echo, (struct sockaddr*) &my_addr_echo,
-                    sizeof(struct sockaddr)) == -1)
-        {
-            perror("bind");
-            exit(1);
-        }
-
-        if(listen(sock_echo, BACKLOG) == -1)
-        {
-            perror("listen");
-            exit(1);
-        }
-
-        /* Configura socket do servico tcp */
-        sock_tcp = create_socket_tcp();
-        if(sock_tcp == -1)
-        {
-            perror("socket");
-            exit(1);
-        }
-
-        index_tcp = get_index(c, SERVICE_TCP);
-        port_tcp = *(c[index_tcp].port);
-        my_addr_tcp.sin_family = AF_INET;
-        my_addr_tcp.sin_port = htons(port_tcp);
-        my_addr_tcp.sin_addr.s_addr = INADDR_ANY;
-        bzero(&(my_addr_tcp.sin_zero), 8);
-
-        if(bind(sock_tcp, (struct sockaddr*) &my_addr_tcp,
-                    sizeof(struct sockaddr)) == -1)
-        {
-            perror("bind");
-            exit(1);
-        }
-
-        if(listen(sock_tcp, BACKLOG) == -1)
-        {
-            perror("listen");
-            exit(1);
-        }
-
-        /* Configura socket do servico udp */
-        sock_udp = create_socket_udp();
-        if(sock_udp == -1)
-        {
-            perror("socket");
-            exit(1);
-        }
-
-        index_udp = get_index(c, SERVICE_UDP);
-        port_udp = *(c[index_udp].port);
-        my_addr_udp.sin_family = AF_INET;
-        my_addr_udp.sin_port = htons(port_udp);
-        my_addr_udp.sin_addr.s_addr = INADDR_ANY;
-        memset(&(my_addr_udp.sin_zero), '\0', 8);
-
-        if(bind(sock_udp, (struct sockaddr *)&my_addr_udp,
-                    sizeof(struct sockaddr)) == -1) 
-        {
-            perror("bind");
-            exit(1);
-        }
-
         /* Configura select */
         nfds = max(sock_echo, max(sock_tcp, sock_udp)) + 1;
         FD_ZERO(&readfds);
@@ -312,7 +311,7 @@ int main(int argc, char *argv[])
             int sock_echo_new;
 
             if((sock_echo_new == accept(sock_echo, 
-                        (struct sockaddr *)&their_addr_echo, &sin_size)) == -1)
+                            (struct sockaddr *)&their_addr_echo, &sin_size)) == -1)
             {
                 perror("accept");
                 continue;
@@ -333,7 +332,7 @@ int main(int argc, char *argv[])
             int sock_tcp_new;
 
             if((sock_tcp_new == accept(sock_tcp,
-                         (struct sockaddr *)&their_addr_tcp, &sin_size)) == -1)
+                            (struct sockaddr *)&their_addr_tcp, &sin_size)) == -1)
             {
                 perror("accept");
                 continue;
