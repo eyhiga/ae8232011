@@ -330,9 +330,8 @@ int main(int argc, char *argv[])
         else if(FD_ISSET(sock_tcp, &readfds))
         {
             int sock_tcp_new;
-
-            if((sock_tcp_new == accept(sock_tcp,
-                            (struct sockaddr *)&their_addr_tcp, &sin_size)) == -1)
+            
+            if((sock_tcp_new = accept(sock_tcp, (struct sockaddr *)&their_addr_tcp, &sin_size)) == -1)
             {
                 perror("accept");
                 continue;
@@ -346,26 +345,16 @@ int main(int argc, char *argv[])
                 sprintf(port, "%d", *(c[index_tcp].port));
                 char *args[] = {c[index_tcp].pathname, 
                     inet_ntoa(their_addr_tcp.sin_addr), port, (char *) 0};
+                    
+                dup2(sock_tcp_new, 0);
+                dup2(sock_tcp_new, 1);
+                dup2(sock_tcp_new, 2);
+                close(sock_tcp_new);
 
-                int sock0, sock1, sock2;
-
-                //for(i=3; i<MAXFD; i++)
-                //{
-                //    close(i);
-                //}
-
-                printf("%d\n", dup2(sock_tcp_new, 0));
-                printf("%d\n", dup2(sock_tcp_new, 1));
-                printf("%d\n", dup2(sock_tcp_new, 2));
-                printf("%d\n", sock_tcp_new);
-                //dup2(sock_tcp_new, 1);
-                //dup2(sock_tcp_new, 2);
-
-
-                execv(c[index_tcp].pathname, c[index_tcp.args]);
+                execv(c[index_tcp].pathname, (char * const*)c[index_tcp].args);
             }
 
-            close(sock_tcp);
+            close(sock_tcp_new);
             FD_CLR(sock_tcp, &readfds);
         }
         else if(FD_ISSET(sock_udp, &readfds))
