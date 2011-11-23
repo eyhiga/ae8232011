@@ -175,7 +175,7 @@ int get_index(conf *c, char *service)
 int main(int argc, char *argv[])
 {
 
-    //daemon_init(argc[0]);
+    //daemon_init(argv[0]);
 
     /* Informacoes de configuracao */
     FILE *fp = fopen("inetd.conf", "r");
@@ -329,6 +329,7 @@ int main(int argc, char *argv[])
         }
         else if(FD_ISSET(sock_tcp, &readfds))
         {
+            
             int sock_tcp_new;
             
             if((sock_tcp_new = accept(sock_tcp, (struct sockaddr *)&their_addr_tcp, &sin_size)) == -1)
@@ -341,17 +342,22 @@ int main(int argc, char *argv[])
 
             if(fork() == 0)
             {
+                
                 char *port = malloc(sizeof(char) * MAXDATASIZE);
                 sprintf(port, "%d", *(c[index_tcp].port));
                 char *args[] = {c[index_tcp].pathname, 
                     inet_ntoa(their_addr_tcp.sin_addr), port, (char *) 0};
                     
                 dup2(sock_tcp_new, 0);
-                dup2(sock_tcp_new, 1);
-                dup2(sock_tcp_new, 2);
                 close(sock_tcp_new);
-
-                execv(c[index_tcp].pathname, (char * const*)c[index_tcp].args);
+                dup2(0, 1);
+                close(sock_tcp_new);
+                
+                if(execl(c[index_tcp].pathname,
+                         c[index_tcp].pathname, (char *)0) == -1){
+                    perror("exec\n");
+                    continue;
+                }
             }
 
             close(sock_tcp_new);
