@@ -174,11 +174,12 @@ int get_index(conf *c, char *service)
     return index;
 }
 
-void udp_handler(int signal)
+void udp_handler(int s)
 {
     int status;
     pid_t pid;
 
+    signal(SIGCHLD, udp_handler);
     pid = wait(&status);
 
     busy_udp = 0;
