@@ -364,7 +364,7 @@ int main(int argc, char *argv[])
 
                 //printf("%s\n", c[index_echo].pathname);
                 if(execl(c[index_echo].pathname,
-                            c[index_echo].pathname, (char *)0) == -1){
+                            c[index_echo].args, (char *)0) == -1){
                     perror("exec\n");
                     continue;
                 }
@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
                 close(sock_tcp_new);
 
                 if(execl(c[index_tcp].pathname,
-                            c[index_tcp].pathname, (char *)0) == -1){
+                            c[index_tcp].args, (char *)0) == -1){
                     perror("exec\n");
                     continue;
                 }
@@ -465,7 +465,7 @@ int main(int argc, char *argv[])
 
                     printf("%s\n", c[index_udp].pathname);
                     if(execl(c[index_udp].pathname,
-                                c[index_udp].pathname, (char *)0) == -1){
+                                c[index_udp].args, (char *)0) == -1){
                         perror("exec\n");
                         continue;
                     }
