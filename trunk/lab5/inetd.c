@@ -28,6 +28,8 @@
 
 #define max(x, y) ((x) > (y) ? (x) : (y))
 
+int busy_udp = 0;
+
 typedef struct conf
 {
     char *name;
@@ -172,6 +174,17 @@ int get_index(conf *c, char *service)
     return index;
 }
 
+void udp_handler(int signal)
+{
+    int status;
+    pid_t pid;
+
+    pid = wait(&status);
+
+    busy_udp = 0;
+
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -186,8 +199,8 @@ int main(int argc, char *argv[])
     int nfds;
 
     /* Informacoes gerais */
-    //char buf[MAXDATASIZE];
-    //socklen_t addr_len = sizeof(struct sockaddr);
+    char buf[MAXDATASIZE];
+    socklen_t addr_len = sizeof(struct sockaddr);
     socklen_t sin_size = sizeof(struct sockaddr_in);
     //int i;
 
@@ -290,15 +303,26 @@ int main(int argc, char *argv[])
     }
 
 
+    /* Configura select  */
+    nfds = max(sock_echo, max(sock_tcp, sock_udp)) + 1;
+    FD_ZERO(&readfds);
+    //FD_SET(sock_echo, &readfds);
+    //FD_SET(sock_tcp, &readfds);
+    //FD_SET(sock_udp, &readfds);
+
     while(1)
     {
         /* Configura select */
-        nfds = max(sock_echo, max(sock_tcp, sock_udp)) + 1;
-        FD_ZERO(&readfds);
+        //nfds = max(sock_echo, max(sock_tcp, sock_udp)) + 1;
+        //FD_ZERO(&readfds);
 
         FD_SET(sock_echo, &readfds);
         FD_SET(sock_tcp, &readfds);
-        FD_SET(sock_udp, &readfds);
+
+        if(busy_udp == 0)
+        {
+            FD_SET(sock_udp, &readfds);
+        }
 
         if(select(nfds, &readfds, NULL, NULL, NULL) < 0)
         {
@@ -338,6 +362,9 @@ int main(int argc, char *argv[])
 
             close(sock_echo_new);
             FD_CLR(sock_echo, &readfds);
+            //FD_SET(sock_tcp, &readfds);
+            //FD_SET(sock_udp, &readfds);
+
         }
         else if(FD_ISSET(sock_tcp, &readfds))
         {
@@ -356,7 +383,6 @@ int main(int argc, char *argv[])
 
             if(fork() == 0)
             {
-
                 char *port = malloc(sizeof(char) * MAXDATASIZE);
                 sprintf(port, "%d", *(c[index_tcp].port));
                 /*char *args[] = {c[index_tcp].pathname, 
@@ -376,27 +402,24 @@ int main(int argc, char *argv[])
 
             close(sock_tcp_new);
             FD_CLR(sock_tcp, &readfds);
+            //FD_SET(sock_echo, &readfds);
+            //FD_SET(sock_udp, &readfds);
         }
         else if(FD_ISSET(sock_udp, &readfds))
         {
             int sock_udp_new;
+            int pid_udp;
 
-            /*int t = recvfrom(sock_udp, buf, MAXDATASIZE-1, MSG_PEEK, 
-                    (struct sockaddr *)&their_addr_udp, &addr_len);*/
+            int t = recvfrom(sock_udp, buf, MAXDATASIZE-1, MSG_PEEK, 
+                    (struct sockaddr *)&their_addr_udp, &addr_len);
 
             mysyslog(argv[0], inet_ntoa(their_addr_udp.sin_addr), 
                     SERVICE_UDP);
 
-            /*if(fork() == 0)
-            {
-                char port[MAXDATASIZE];
-                itoa(c[index_udp].port, port, 10);
-                char *args[] = {inet_ntoa(their_addr_udp.sin_addr), port};
+            busy_udp = 1;
+            pid_udp = fork();
 
-                exec(c[index_udp].pathname, args);
-            }*/
-
-            if(fork() == 0)
+            if(pid_udp == 0)
             {
 
                 char *port = malloc(sizeof(char) * MAXDATASIZE);
@@ -404,11 +427,12 @@ int main(int argc, char *argv[])
                 /*char *args[] = {c[index_udp].pathname, 
                     inet_ntoa(their_addr_udp.sin_addr), port, (char *) 0};*/
 
-                dup2(sock_udp_new, 0);
-                close(sock_udp_new);
+                dup2(sock_udp, 0);
+                close(sock_udp);
                 dup2(0, 1);
-                close(sock_udp_new);
+                close(sock_udp);
 
+                printf("%s\n", c[index_udp].pathname);
                 if(execl(c[index_udp].pathname,
                             c[index_udp].pathname, (char *)0) == -1){
                     perror("exec\n");
@@ -416,10 +440,11 @@ int main(int argc, char *argv[])
                 }
             }
 
-
-
+            signal(SIGCHLD, udp_handler);
             close(sock_udp_new);
             FD_CLR(sock_udp, &readfds);
+            //FD_SET(sock_echo, &readfds);
+            //FD_SET(sock_tcp, &readfds);
         }
 
     }

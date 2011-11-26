@@ -3,22 +3,26 @@
  ** conectada pelo cliente em um log
 */
 
+#include <errno.h>
+#include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
 #include <string.h>
 #include <strings.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
-#include <arpa/inet.h>
 #include <syslog.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <time.h>
+#include <unistd.h>
+
+#include <arpa/inet.h>
+
+#include <sys/types.h>
+
+#include <netinet/in.h>
+
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define MYPORT 9452    /* porta usada para a conexao */
 
@@ -44,41 +48,44 @@ void logging(char *address, char *dt){
 
 int main(int argc, char *argv[]){
     
-    int sockfd;
-    struct sockaddr_in my_addr;    /* informacao de endereco do servidor */
+    int sockfd = 0;
     struct sockaddr_in their_addr; /* informacoes do cliente  */
     socklen_t addr_len;
     char dt[MAXDTSIZE];
     char aux[MAXBUFLEN];
     time_t now;
     time(&now);
+    FILE *wsock;
     
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
-        perror("Inicializacao do socket");
-        exit(1);
-    }
-
-    my_addr.sin_family = AF_INET;         /* Ordem dos bytes do host */
-    my_addr.sin_port = htons(MYPORT);     /* Ordem dos bytes da rede */
-    my_addr.sin_addr.s_addr = INADDR_ANY; /* Preenche com IP do server */
-    memset(&(my_addr.sin_zero), '\0', 8);
-
-    /* Seta informacoes do server para o socket */
-    if (bind(sockfd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr)) == -1) {
-        perror("bind");
-        exit(1);
-    }
-
     addr_len = sizeof(struct sockaddr);
+
+    if((wsock = fdopen(0, "w")) == NULL)
+    {
+        perror("fdopen");
+        exit(1);
+    }
+
+    printf("ok\n");
+    if(getpeername(sockfd, (struct sockaddr *)&their_addr, &addr_len) == -1)
+    {
+        perror("getpeername");
+        exit(1);
+    }
+
+    printf("ok\n");
+
+    setvbuf(wsock, NULL, _IOLBF, 0);
 
     recvfrom(sockfd, aux, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len);
     
     ctime_r(&now, dt);
     
-    sendto(sockfd, dt, strlen(dt), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+    sendto(sockfd, dt, strlen(dt), 0, (struct sockaddr *)&their_addr, 
+            sizeof(struct sockaddr));
 
     
     close(sockfd);
+    fclose(wsock);
     logging(inet_ntoa(their_addr.sin_addr), dt);
 
     return 0;
