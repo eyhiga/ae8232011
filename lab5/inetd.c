@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
     while(1)
     {
         /* Configura select */
-        nfds = max(sock_echo, max(sock_tcp, sock_udp)) + 1;
+        nfds = max(sock_echo, sock_tcp);
         FD_ZERO(&readfds);
 
         FD_SET(sock_echo, &readfds);
@@ -325,7 +325,10 @@ int main(int argc, char *argv[])
         if(busy_udp == 0)
         {
             FD_SET(sock_udp, &readfds);
+            nfds = max(nfds, sock_udp);
         }
+
+        nfds += 1;
 
         if(select(nfds, &readfds, NULL, NULL, NULL) < 0)
         {
