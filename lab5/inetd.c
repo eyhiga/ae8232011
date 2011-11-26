@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
             int sock_echo_new;
 
             if((sock_echo_new == accept(sock_echo, 
-                            (struct sockaddr *)&their_addr_echo, &sin_size)) == -1)
+                     (struct sockaddr *)&their_addr_echo, &sin_size)) == -1)
             {
                 perror("accept");
                 continue;
@@ -332,13 +332,15 @@ int main(int argc, char *argv[])
             
             int sock_tcp_new;
             
-            if((sock_tcp_new = accept(sock_tcp, (struct sockaddr *)&their_addr_tcp, &sin_size)) == -1)
+            if((sock_tcp_new = accept(sock_tcp, 
+                      (struct sockaddr *)&their_addr_tcp, &sin_size)) == -1)
             {
                 perror("accept");
                 continue;
             }
 
-            mysyslog(argv[0], inet_ntoa(their_addr_tcp.sin_addr), SERVICE_TCP);
+            mysyslog(argv[0], inet_ntoa(their_addr_tcp.sin_addr), 
+                    SERVICE_TCP);
 
             if(fork() == 0)
             {
@@ -368,7 +370,8 @@ int main(int argc, char *argv[])
             int t = recvfrom(sock_udp, buf, MAXDATASIZE-1, MSG_PEEK, 
                     (struct sockaddr *)&their_addr_udp, &addr_len);
 
-            mysyslog(argv[0], inet_ntoa(their_addr_udp.sin_addr), SERVICE_UDP);
+            mysyslog(argv[0], inet_ntoa(their_addr_udp.sin_addr), 
+                    SERVICE_UDP);
 
             /*            if(fork() == 0)
                           {
