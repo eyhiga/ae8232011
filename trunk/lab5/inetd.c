@@ -29,6 +29,7 @@
 #define max(x, y) ((x) > (y) ? (x) : (y))
 
 int busy_udp = 0;
+int last_udp_pid;
 
 typedef struct conf
 {
@@ -174,16 +175,25 @@ int get_index(conf *c, char *service)
     return index;
 }
 
-void udp_handler(int s)
+void sig_handler(int s)
 {
     int status;
     pid_t pid;
+    char *message = malloc(sizeof(char) * MAXDATASIZE);
 
     printf("ok\n");
-    signal(SIGCHLD, udp_handler);
+    signal(SIGCHLD, sig_handler);
     pid = wait(&status);
 
-    busy_udp = 0;
+    if(pid == last_udp_pid)
+    {
+        busy_udp = 0;
+    }
+
+    sprintf(message, 
+            "server: Finished service pid:%d\n\n", pid);
+
+    mysyslog("", message);
 
 }
 
@@ -322,11 +332,11 @@ int main(int argc, char *argv[])
         FD_SET(sock_echo, &readfds);
         FD_SET(sock_tcp, &readfds);
 
-        if(busy_udp == 0)
-        {
+        //if(busy_udp == 0)
+        //{
             FD_SET(sock_udp, &readfds);
             nfds = max(nfds, sock_udp);
-        }
+        //}
 
         nfds += 1;
 
@@ -350,7 +360,7 @@ int main(int argc, char *argv[])
 
 
             /*mysyslog(argv[0], inet_ntoa(their_addr_echo.sin_addr), 
-                    SERVICE_ECHO);*/
+              SERVICE_ECHO);*/
 
             pid_echo = fork();
 
@@ -369,6 +379,8 @@ int main(int argc, char *argv[])
                     continue;
                 }
             }
+
+            //signal(SIGCHLD, sig_handler);
 
             sprintf(message, 
                     "server: Got connection from: %s\nservice: %s\npid: %d\n\n", 
@@ -398,7 +410,7 @@ int main(int argc, char *argv[])
 
 
             /*mysyslog(argv[0], inet_ntoa(their_addr_tcp.sin_addr), 
-                    SERVICE_TCP);*/
+              SERVICE_TCP);*/
 
             pid_tcp = fork();
 
@@ -420,6 +432,8 @@ int main(int argc, char *argv[])
                     continue;
                 }
             }
+
+            //signal(SIGCHLD, sig_handler);
 
             sprintf(message, 
                     "server: Got connection from: %s\nservice: %s\npid: %d\n\n", 
@@ -445,14 +459,13 @@ int main(int argc, char *argv[])
 
 
                 /*mysyslog(argv[0], inet_ntoa(their_addr_udp.sin_addr), 
-                        SERVICE_UDP);*/
+                  SERVICE_UDP);*/
 
                 busy_udp = 1;
-                pid_udp = fork();
+                last_udp_pid = fork();
 
-                if(pid_udp == 0)
+                if(last_udp_pid == 0)
                 {
-
                     char *port = malloc(sizeof(char) * MAXDATASIZE);
                     sprintf(port, "%d", *(c[index_tcp].port));
                     /*char *args[] = {c[index_udp].pathname, 
@@ -477,7 +490,7 @@ int main(int argc, char *argv[])
 
                 mysyslog(argv[0], message);
 
-                signal(SIGCHLD, udp_handler);
+                //signal(SIGCHLD, sig_handler);
                 close(sock_udp_new);
                 FD_CLR(sock_udp, &readfds);
                 //FD_SET(sock_echo, &readfds);
