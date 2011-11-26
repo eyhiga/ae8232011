@@ -47,7 +47,7 @@ int main()
 {
     time_t now;
     int new_fd = 0;
-    char *line;
+    char *line = malloc(sizeof(char) * MAXLINE);
     char dt[MAXLINE];
     //struct sockaddr_in my_addr;    /* informacao de endereco do servidor */
     struct sockaddr_in their_addr; /* informacoes do cliente  */
@@ -61,22 +61,16 @@ int main()
 
     addr_size = sizeof(struct sockaddr_in);
 
-    /*
+
     if((wsock = fdopen(0, "w")) == NULL)
     {
         perror("wsock");
         exit(1);
     }
-
+    
     if((rsock = fdopen(0, "r")) == NULL)
     {
-        perror("rsock");
-        exit(1);
-    }*/
-
-    if((sock = fdopen(0, "rw")) == NULL)
-    {
-        perror("fdopen");
+        perror("wsock");
         exit(1);
     }
 
@@ -86,35 +80,20 @@ int main()
         exit(1);
     }
     setvbuf(wsock, NULL, _IOLBF, 0);
+
     ctime_r(&now, dt);
 
-    /*while(scanf("%s", line) != EOF)
+    while(fgets(line, MAXLINE, rsock) != NULL)
     {
-        printf("%s", line);
-    }*/
-
-    while((line = fgets(line, MAXLINE, rsock)) != NULL)
-    {
-        line[strlen(line)] = '\0';
-        fputs(line, wsock);
+       fputs(line, wsock); 
     }
 
-    /*while ((numbytes = read(new_fd, line, MAXLINE)) > 0) {
-        line[numbytes] = '\0';
-        printf("Linha Recebida: %s", line);
-        write(new_fd, line, numbytes);
-    }*/
+    //fputs(dt, wsock);
     close(new_fd);
     fclose(wsock);
     fclose(rsock);
-
     logging(inet_ntoa(their_addr.sin_addr), dt);
-    
-    fprintf(stderr, "server: connection from %s closed\n",
-            inet_ntoa(their_addr.sin_addr));
-    exit(0);
 
-    while(waitpid(-1, NULL, WNOHANG) > 0);
 
     return 0;
 
