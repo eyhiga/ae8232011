@@ -3,22 +3,24 @@
  ** conectada pelo cliente em um log
 */
 
+#include <errno.h>
+#include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
 #include <string.h>
 #include <strings.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
-#include <arpa/inet.h>
 #include <syslog.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <time.h>
+#include <unistd.h>
+
+#include <arpa/inet.h>
+
+#include <netinet/in.h>
+
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define MYPORT 9451    /* porta usada para a conexao */
 
@@ -43,10 +45,10 @@ void logging(char *address, char *dt){
 int main(int argc, char *argv[]){
 
     int new_fd = 0;
-    struct sockaddr_in my_addr;    /* informacao de endereco do servidor */
+    //struct sockaddr_in my_addr;    /* informacao de endereco do servidor */
     struct sockaddr_in their_addr; /* informacoes do cliente  */
     unsigned int addr_size;
-    int yes=1;
+    //int yes=1;
     char dt[MAXDTSIZE];
     time_t now;
     time(&now);
