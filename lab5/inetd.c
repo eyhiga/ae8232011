@@ -41,7 +41,7 @@ typedef struct conf
     char *args;
 } conf;
 
-void mysyslog(char *progname, char *address, char *service)
+void mysyslog(char *progname, char *message)
 {
     FILE *fp;
     char buf[64];
@@ -58,8 +58,8 @@ void mysyslog(char *progname, char *address, char *service)
 
     fprintf(fp, "%s\n", progname);
     fprintf(fp, "%s\n", buf);
-    fprintf(fp, "server: got connection from %s\n", address);
-    fprintf(fp, "service: %s\n\n", service);
+    fprintf(fp, "%s\n", message);
+    //fprintf(fp, "service: %s\n\n", service);
     fclose(fp);
 
 }
@@ -179,6 +179,7 @@ void udp_handler(int s)
     int status;
     pid_t pid;
 
+    printf("ok\n");
     signal(SIGCHLD, udp_handler);
     pid = wait(&status);
 
@@ -203,6 +204,7 @@ int main(int argc, char *argv[])
     char buf[MAXDATASIZE];
     socklen_t addr_len = sizeof(struct sockaddr);
     socklen_t sin_size = sizeof(struct sockaddr_in);
+    char *message = malloc(sizeof(char) * MAXDATASIZE);
     //int i;
 
     /* Informacoes do socket de echo */
@@ -305,8 +307,8 @@ int main(int argc, char *argv[])
 
 
     /* Configura select  */
-    nfds = max(sock_echo, max(sock_tcp, sock_udp)) + 1;
-    FD_ZERO(&readfds);
+    //nfds = max(sock_echo, max(sock_tcp, sock_udp)) + 1;
+    //FD_ZERO(&readfds);
     //FD_SET(sock_echo, &readfds);
     //FD_SET(sock_tcp, &readfds);
     //FD_SET(sock_udp, &readfds);
@@ -314,8 +316,8 @@ int main(int argc, char *argv[])
     while(1)
     {
         /* Configura select */
-        //nfds = max(sock_echo, max(sock_tcp, sock_udp)) + 1;
-        //FD_ZERO(&readfds);
+        nfds = max(sock_echo, max(sock_tcp, sock_udp)) + 1;
+        FD_ZERO(&readfds);
 
         FD_SET(sock_echo, &readfds);
         FD_SET(sock_tcp, &readfds);
@@ -334,16 +336,20 @@ int main(int argc, char *argv[])
         if(FD_ISSET(sock_echo, &readfds))
         {
             int sock_echo_new;
+            int pid_echo;
 
             if((sock_echo_new = accept(sock_echo, 
-                       (struct sockaddr *)&their_addr_echo, &sin_size)) == -1)
+                            (struct sockaddr *)&their_addr_echo, &sin_size)) == -1)
             {
                 perror("accept");
                 continue;
             }
 
-            mysyslog(argv[0], inet_ntoa(their_addr_echo.sin_addr), 
-                    SERVICE_ECHO);
+
+            /*mysyslog(argv[0], inet_ntoa(their_addr_echo.sin_addr), 
+                    SERVICE_ECHO);*/
+
+            pid_echo = fork();
 
             if(fork() == 0)
             {
@@ -361,33 +367,44 @@ int main(int argc, char *argv[])
                 }
             }
 
+            sprintf(message, 
+                    "server: Got connection from: %s\nservice: %s\npid: %d\n\n", 
+                    inet_ntoa(their_addr_echo.sin_addr), SERVICE_ECHO, pid_echo);
+
+            mysyslog(argv[0], message);
+
             close(sock_echo_new);
             FD_CLR(sock_echo, &readfds);
             //FD_SET(sock_tcp, &readfds);
             //FD_SET(sock_udp, &readfds);
 
         }
-        else if(FD_ISSET(sock_tcp, &readfds))
+
+        if(FD_ISSET(sock_tcp, &readfds))
         {
 
             int sock_tcp_new;
+            int pid_tcp;
 
             if((sock_tcp_new = accept(sock_tcp, 
-                        (struct sockaddr *)&their_addr_tcp, &sin_size)) == -1)
+                            (struct sockaddr *)&their_addr_tcp, &sin_size)) == -1)
             {
                 perror("accept");
                 continue;
             }
 
-            mysyslog(argv[0], inet_ntoa(their_addr_tcp.sin_addr), 
-                    SERVICE_TCP);
 
-            if(fork() == 0)
+            /*mysyslog(argv[0], inet_ntoa(their_addr_tcp.sin_addr), 
+                    SERVICE_TCP);*/
+
+            pid_tcp = fork();
+
+            if(pid_tcp == 0)
             {
                 char *port = malloc(sizeof(char) * MAXDATASIZE);
                 sprintf(port, "%d", *(c[index_tcp].port));
                 /*char *args[] = {c[index_tcp].pathname, 
-                    inet_ntoa(their_addr_tcp.sin_addr), port, (char *) 0};*/
+                  inet_ntoa(their_addr_tcp.sin_addr), port, (char *) 0};*/
 
                 dup2(sock_tcp_new, 0);
                 close(sock_tcp_new);
@@ -401,51 +418,68 @@ int main(int argc, char *argv[])
                 }
             }
 
+            sprintf(message, 
+                    "server: Got connection from: %s\nservice: %s\npid: %d\n\n", 
+                    inet_ntoa(their_addr_tcp.sin_addr), SERVICE_TCP, pid_tcp);
+
+            mysyslog(argv[0], message);
+
             close(sock_tcp_new);
             FD_CLR(sock_tcp, &readfds);
             //FD_SET(sock_echo, &readfds);
             //FD_SET(sock_udp, &readfds);
         }
-        else if(FD_ISSET(sock_udp, &readfds))
+
+        if(busy_udp == 0)
         {
-            int sock_udp_new;
-            int pid_udp;
-
-            int t = recvfrom(sock_udp, buf, MAXDATASIZE-1, MSG_PEEK, 
-                    (struct sockaddr *)&their_addr_udp, &addr_len);
-
-            mysyslog(argv[0], inet_ntoa(their_addr_udp.sin_addr), 
-                    SERVICE_UDP);
-
-            busy_udp = 1;
-            pid_udp = fork();
-
-            if(pid_udp == 0)
+            if(FD_ISSET(sock_udp, &readfds))
             {
+                int sock_udp_new;
+                int pid_udp;
 
-                char *port = malloc(sizeof(char) * MAXDATASIZE);
-                sprintf(port, "%d", *(c[index_tcp].port));
-                /*char *args[] = {c[index_udp].pathname, 
-                    inet_ntoa(their_addr_udp.sin_addr), port, (char *) 0};*/
+                int t = recvfrom(sock_udp, buf, MAXDATASIZE-1, MSG_PEEK, 
+                        (struct sockaddr *)&their_addr_udp, &addr_len);
 
-                dup2(sock_udp, 0);
-                close(sock_udp);
-                dup2(0, 1);
-                close(sock_udp);
 
-                printf("%s\n", c[index_udp].pathname);
-                if(execl(c[index_udp].pathname,
-                            c[index_udp].pathname, (char *)0) == -1){
-                    perror("exec\n");
-                    continue;
+                /*mysyslog(argv[0], inet_ntoa(their_addr_udp.sin_addr), 
+                        SERVICE_UDP);*/
+
+                busy_udp = 1;
+                pid_udp = fork();
+
+                if(pid_udp == 0)
+                {
+
+                    char *port = malloc(sizeof(char) * MAXDATASIZE);
+                    sprintf(port, "%d", *(c[index_tcp].port));
+                    /*char *args[] = {c[index_udp].pathname, 
+                      inet_ntoa(their_addr_udp.sin_addr), port, (char *) 0};*/
+
+                    dup2(sock_udp, 0);
+                    close(sock_udp);
+                    dup2(0, 1);
+                    close(sock_udp);
+
+                    printf("%s\n", c[index_udp].pathname);
+                    if(execl(c[index_udp].pathname,
+                                c[index_udp].pathname, (char *)0) == -1){
+                        perror("exec\n");
+                        continue;
+                    }
                 }
-            }
 
-            signal(SIGCHLD, udp_handler);
-            close(sock_udp_new);
-            FD_CLR(sock_udp, &readfds);
-            //FD_SET(sock_echo, &readfds);
-            //FD_SET(sock_tcp, &readfds);
+                sprintf(message, 
+                        "server: Got connection from: %s\nservice: %s\npid:%d\n\n", 
+                        inet_ntoa(their_addr_udp.sin_addr), SERVICE_UDP, pid_udp);
+
+                mysyslog(argv[0], message);
+
+                signal(SIGCHLD, udp_handler);
+                close(sock_udp_new);
+                FD_CLR(sock_udp, &readfds);
+                //FD_SET(sock_echo, &readfds);
+                //FD_SET(sock_tcp, &readfds);
+            }
         }
 
     }
