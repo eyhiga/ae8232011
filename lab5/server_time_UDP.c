@@ -65,14 +65,14 @@ int main(int argc, char *argv[]){
         exit(1);
     }
 
-    printf("ok\n");
-    if(getpeername(sockfd, (struct sockaddr *)&their_addr, &addr_len) == -1)
-    {
-        perror("getpeername");
-        exit(1);
-    }
+    //printf("ok\n");
+    //if(getpeername(sockfd, (struct sockaddr *)&their_addr, &addr_len) == -1)
+    //{
+    //    perror("getpeername");
+    //    exit(1);
+    //}
 
-    printf("ok\n");
+    //printf("ok\n");
 
     setvbuf(wsock, NULL, _IOLBF, 0);
 
