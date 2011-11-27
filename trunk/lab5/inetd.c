@@ -350,6 +350,8 @@ int main(int argc, char *argv[])
                     nfds = max(nfds, sock_udp);
                 }
 
+                nfds += 1;
+
                 if(select(nfds, &readfds, NULL, NULL, NULL) < 0)
                 {
                     perror("select");
