@@ -383,8 +383,8 @@ int main(int argc, char *argv[])
             //signal(SIGCHLD, sig_handler);
 
             sprintf(message, 
-                    "server: Got connection from: %s\nservice: %s\npid: %d\n\n", 
-                    inet_ntoa(their_addr_echo.sin_addr), SERVICE_ECHO, pid_echo);
+                    "server: Got connection from: %s port %d\nservice: %s\npid: %d\n\n", 
+                    inet_ntoa(their_addr_echo.sin_addr), ntohs(their_addr_echo.sin_port), SERVICE_ECHO, pid_echo);
 
             mysyslog(argv[0], message);
 
@@ -436,8 +436,8 @@ int main(int argc, char *argv[])
             //signal(SIGCHLD, sig_handler);
 
             sprintf(message, 
-                    "server: Got connection from: %s\nservice: %s\npid: %d\n\n", 
-                    inet_ntoa(their_addr_tcp.sin_addr), SERVICE_TCP, pid_tcp);
+                    "server: Got connection from: %s port %d\nservice: %d\npid: %d\n\n", 
+                    inet_ntoa(their_addr_tcp.sin_addr), ntohs(their_addr_tcp.sin_port), SERVICE_TCP, pid_tcp);
 
             mysyslog(argv[0], message);
 
@@ -485,12 +485,12 @@ int main(int argc, char *argv[])
                 }
 
                 sprintf(message, 
-                        "server: Got connection from: %s\nservice: %s\npid:%d\n\n", 
-                        inet_ntoa(their_addr_udp.sin_addr), SERVICE_UDP, pid_udp);
+                        "server: Got connection from: %s port %d\nservice: %s\npid:%d\n\n", 
+                        inet_ntoa(their_addr_udp.sin_addr), ntohs(their_addr_udp.sin_port), SERVICE_UDP, last_udp_pid);
 
                 mysyslog(argv[0], message);
 
-                //signal(SIGCHLD, sig_handler);
+                signal(SIGCHLD, sig_handler);
                 close(sock_udp_new);
                 FD_CLR(sock_udp, &readfds);
                 //FD_SET(sock_echo, &readfds);
