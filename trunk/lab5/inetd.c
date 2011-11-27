@@ -188,6 +188,7 @@ void sig_handler(int s)
     if(pid == last_udp_pid)
     {
         busy_udp = 0;
+        printf("udp finished\n");
     }
 
     sprintf(message, 
@@ -336,6 +337,19 @@ int main(int argc, char *argv[])
         {
             if(errno == EINTR)
             {
+
+                nfds = max(sock_echo, sock_tcp);
+                FD_ZERO(&readfds);
+
+                FD_SET(sock_echo, &readfds);
+                FD_SET(sock_tcp, &readfds);
+
+                if(busy_udp == 0)
+                {
+                    FD_SET(sock_udp, &readfds);
+                    nfds = max(nfds, sock_udp);
+                }
+
                 if(select(nfds, &readfds, NULL, NULL, NULL) < 0)
                 {
                     perror("select");
