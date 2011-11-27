@@ -316,6 +316,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    int ok = 1;
+
     while(1)
     {
         /* Configura select */
@@ -329,6 +331,7 @@ int main(int argc, char *argv[])
         {
             FD_SET(sock_udp, &readfds);
             nfds = max(nfds, sock_udp);
+            ok = 1;
         }
 
         nfds += 1;
@@ -348,6 +351,7 @@ int main(int argc, char *argv[])
                 {
                     FD_SET(sock_udp, &readfds);
                     nfds = max(nfds, sock_udp);
+                    ok = 1;
                 }
 
                 nfds += 1;
@@ -447,7 +451,7 @@ int main(int argc, char *argv[])
             FD_CLR(sock_tcp, &readfds);
         }
 
-        if(busy_udp == 0)
+        if(ok == 1)
         {
             if(FD_ISSET(sock_udp, &readfds))
             {
@@ -458,6 +462,7 @@ int main(int argc, char *argv[])
                         (struct sockaddr *)&their_addr_udp, &addr_len);
 
                 busy_udp = 1;
+                ok = 0;
                 last_udp_pid = fork();
 
                 if(last_udp_pid == 0)
