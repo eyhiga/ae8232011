@@ -493,7 +493,7 @@ int main(int argc, char *argv[])
 
                 mysyslog(argv[0], message);
 
-                close(sock_udp);
+                //close(sock_udp);
                 FD_CLR(sock_udp, &readfds);
             }
         }
