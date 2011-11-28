@@ -206,6 +206,9 @@ int main(int argc, char *argv[])
     /* Informacoes de configuracao */
     FILE *fp = fopen("inetd.conf", "r");
     conf *c = malloc(3 * sizeof(conf));
+    read_config(fp, c);
+
+    daemon_init(argv[0]);
 
     /* Informacoes para o select */
     fd_set readfds;
@@ -236,7 +239,7 @@ int main(int argc, char *argv[])
     int port_udp = 0;
     int index_udp = 0;
 
-    read_config(fp, c);
+    //read_config(fp, c);
 
     /* Configura socket do servico de echo */
     sock_echo = create_socket_tcp();
