@@ -438,11 +438,8 @@ int main(int argc, char *argv[])
         {
             if(FD_ISSET(sock_udp, &readfds))
             {
-                int sock_udp_new;
-                int pid_udp;
-
-                int t = recvfrom(sock_udp, buf, MAXDATASIZE-1, MSG_PEEK, 
-                        (struct sockaddr *)&their_addr_udp, &addr_len);
+                recvfrom(sock_udp, buf, MAXDATASIZE-1, MSG_PEEK, 
+                   (struct sockaddr *)&their_addr_udp, &addr_len);
 
                 busy_udp = 1;
                 ok = 0;
