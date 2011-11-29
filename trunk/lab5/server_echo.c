@@ -55,7 +55,6 @@ int main()
     unsigned int addr_size;
     FILE *wsock;
     FILE *rsock;
-    FILE *sock;
     
     time(&now);
 

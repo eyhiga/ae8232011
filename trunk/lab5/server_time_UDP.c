@@ -55,7 +55,6 @@ int main(int argc, char *argv[]){
     time_t now;
     time(&now);
     FILE *wsock;
-    FILE *f = fopen("teste", "w");
     char buf[MAXBUFLEN];
     
     addr_len = sizeof(struct sockaddr);
