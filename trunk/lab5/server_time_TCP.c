@@ -26,18 +26,19 @@
 
 #define BACKLOG 10     /* maximo de conexoes que podem ficar na fila  */
 
+#define MAXBUFLEN 100
+
 #define MAXDTSIZE 200  /* Tamanho da string a ser enviada */
 
 void logging(char *address, char *dt){
 
     FILE *fp;
-    int p = MYPORT;
 
     if((fp=fopen("DT_TCP.LOG", "a")) == 0)
     {
         exit(1);
     }
-    fprintf(fp, "%s server: got connection from %s, PORT: %d\n\n", dt ,address,p);
+    fprintf(fp, "%s server: got connection from %s\n\n", dt ,address);
     fclose(fp);
 
 }
@@ -48,10 +49,11 @@ int main(int argc, char *argv[]){
     //struct sockaddr_in my_addr;    /* informacao de endereco do servidor */
     struct sockaddr_in their_addr; /* informacoes do cliente  */
     unsigned int addr_size;
-    //int yes=1;
     char dt[MAXDTSIZE];
+    char buf[MAXBUFLEN];
     time_t now;
     time(&now);
+
     
     addr_size = sizeof(struct sockaddr_in);
     FILE *wsock;
@@ -72,7 +74,8 @@ int main(int argc, char *argv[]){
     fputs(dt, wsock);
     close(new_fd);
     fclose(wsock);
-    logging(inet_ntoa(their_addr.sin_addr), dt);
+    sprintf(buf, "%s:%d", inet_ntoa(their_addr.sin_addr), ntohs(their_addr.sin_port));
+    logging(buf, dt);
 
     return 0;
 

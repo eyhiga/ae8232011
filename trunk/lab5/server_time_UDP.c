@@ -35,13 +35,12 @@
 void logging(char *address, char *dt){
 
     FILE *fp;
-    int p = MYPORT;
 
     if((fp=fopen("DT_UDP.LOG", "a")) == 0)
     {
         exit(1);
     }
-    fprintf(fp, "%s server: got connection from %s, PORT: %d\n\n", dt,address,p);
+    fprintf(fp, "%s server: got connection from %s\n\n", dt,address);
     fclose(fp);
 
 }
@@ -57,6 +56,7 @@ int main(int argc, char *argv[]){
     time(&now);
     FILE *wsock;
     FILE *f = fopen("teste", "w");
+    char buf[MAXBUFLEN];
     
     addr_len = sizeof(struct sockaddr);
 
@@ -65,15 +65,6 @@ int main(int argc, char *argv[]){
         perror("fdopen");
         exit(1);
     }
-
-    //printf("ok\n");
-    //if(getpeername(sockfd, (struct sockaddr *)&their_addr, &addr_len) == -1)
-    //{
-    //    perror("getpeername");
-    //    exit(1);
-    //}
-
-    //printf("ok\n");
 
     setvbuf(wsock, NULL, _IOLBF, 0);
 
@@ -87,7 +78,8 @@ int main(int argc, char *argv[]){
     
     close(sockfd);
     fclose(wsock);
-    logging(inet_ntoa(their_addr.sin_addr), dt);
+    sprintf(buf, "%s:%d", inet_ntoa(their_addr.sin_addr), ntohs(their_addr.sin_port));
+    logging(buf, dt);
 
     return 0;
 
